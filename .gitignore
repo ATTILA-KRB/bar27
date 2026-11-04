@@ -5,3 +5,5 @@ DerivedData/
 *.xcodeproj/xcuserdata/
 build/
 Bar27.xcodeproj/
+.build/
+**/.build/

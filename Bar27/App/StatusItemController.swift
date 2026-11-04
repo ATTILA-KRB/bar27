@@ -43,6 +43,9 @@ final class StatusItemController: NSObject {
         menu.addItem(withTitle: toggleTitle, action: #selector(toggleFromMenu), keyEquivalent: "").target = self
         menu.addItem(withTitle: "Tout afficher", action: #selector(revealAll), keyEquivalent: "").target = self
         menu.addItem(.separator())
+        let login = menu.addItem(withTitle: "Ouvrir à la connexion", action: #selector(toggleLogin), keyEquivalent: "")
+        login.target = self
+        login.state = LoginItem.isEnabled ? .on : .off
         menu.addItem(withTitle: "Organiser la barre…", action: #selector(diagnostic), keyEquivalent: ",").target = self
         if !Permissions.accessibility {
             menu.addItem(withTitle: "Autoriser l'accessibilité…", action: #selector(requestAX), keyEquivalent: "").target = self
@@ -57,5 +60,6 @@ final class StatusItemController: NSObject {
     @objc private func toggleFromMenu() { controller.toggle(); updateIcon() }
     @objc private func revealAll() { controller.set(.revealedAll); updateIcon() }
     @objc private func diagnostic() { openDiagnostic() }
+    @objc private func toggleLogin() { try? LoginItem.set(!LoginItem.isEnabled) }
     @objc private func requestAX() { Permissions.requestAccessibility() }
 }

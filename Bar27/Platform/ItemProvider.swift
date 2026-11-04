@@ -46,6 +46,12 @@ enum ItemProvider {
         return Scan(items: items, duration: duration, unresponsive: unresponsive)
     }
 
+    /// Cadres des items système (un seul process, ~quelques ms). Sert au relais de clics.
+    static func systemItemFrames() -> [CGRect] {
+        guard let agent = NSRunningApplication.runningApplications(withBundleIdentifier: menuBarAgentBundleID).first else { return [] }
+        return items(of: agent)?.map(\.frame).filter { $0.width > 0 } ?? []
+    }
+
     private final class Collector: @unchecked Sendable {
         private let lock = NSLock()
         private var items: [MenuBarItem] = []

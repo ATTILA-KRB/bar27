@@ -9,7 +9,7 @@ cat > "$OUT/Contents/Info.plist" <<PL
 <key>CFBundleExecutable</key><string>Bar27Spike</string><key>CFBundlePackageType</key><string>APPL</string>
 <key>LSUIElement</key><true/><key>LSMinimumSystemVersion</key><string>27.0</string></dict></plist>
 PL
-ID=$(security find-identity -v -p codesigning | awk '/Developer ID Application/{print $2; exit}')
+ID=$(security find-identity -v -p codesigning | awk "/Developer ID Application/{print \$2; exit}")
 codesign --force --options runtime --timestamp=none -s "$ID" "$OUT" && codesign -dv "$OUT" 2>&1 | rg 'Authority=Developer|TeamIdentifier'
 LOG=$PWD/shots/log.txt; rm -f "$LOG" shots/*.png
 # Capture via ScreenCaptureKit des fenêtres de MenuBarAgent : marche même en plein écran.

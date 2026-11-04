@@ -7,6 +7,29 @@ import Bar27Core
 @MainActor
 enum HeadlessCommands {
     static func run(arguments: [String], selfBundleID: String) -> Bool {
+        // --native <fichier> [off|on <bundleID>] : lit/bascule l'interrupteur natif, écrit le résultat dans <fichier>
+        // (lancé par `open` pour avoir l'identité TCC de l'app, pas celle du terminal).
+        if let i = arguments.firstIndex(of: "--native"), arguments.count > i + 1 {
+            let out = URL(fileURLWithPath: arguments[i + 1])
+            var text = ""
+            if !NativeAllowListBackend.isAvailable {
+                NativeAllowListBackend.requestAccess()
+                for _ in 0..<60 where !NativeAllowListBackend.isAvailable { Thread.sleep(forTimeInterval: 0.5) }
+            }
+            do {
+                if arguments.count > i + 3 {
+                    let target = arguments[i + 3]
+                    try NativeAllowListBackend.apply(concealed: arguments[i + 2] == "off" ? [target] : [])
+                    text += "APPLIED \(arguments[i + 2]) \(target)\n"
+                }
+                for (id, allowed) in try NativeAllowListBackend.states().sorted(by: { $0.key < $1.key }) { text += "\(id) \(allowed)\n" }
+                text += "recorded=\(NativeAllowListBackend.recorded.sorted())\n"
+            } catch {
+                text += "ERREUR \(error)\n"
+            }
+            try? text.write(to: out, atomically: true, encoding: .utf8)
+            exit(0)
+        }
         if arguments.contains("--dump-items") {
             let scan = ItemProvider.scanSync()
             let rows = scan.items.map { ["id": $0.id.description, "app": $0.appName ?? "", "title": $0.title ?? "", "x": "\(Int($0.frame.minX))", "w": "\(Int($0.frame.width))"] }

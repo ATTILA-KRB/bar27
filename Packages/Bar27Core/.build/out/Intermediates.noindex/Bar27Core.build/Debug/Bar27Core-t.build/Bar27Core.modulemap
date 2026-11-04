@@ -1,4 +1,0 @@
-module Bar27Core {
-header "Bar27Core-Swift.h"
-export *
-}

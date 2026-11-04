@@ -1,3 +1,4 @@
+import CoreGraphics
 import Foundation
 
 /// Allowlist à passer à l'assertion « assessment mode » : MenuBarAgent masque toute app
@@ -29,5 +30,21 @@ public enum ConcealmentPlanner {
         guard !concealed.isEmpty else { return nil }
         let allowed = runningBundleIDs.subtracting(concealed).union([selfBundleID])
         return ConcealmentPlan(allowedBundleIDs: allowed.sorted(), concealedBundleIDs: concealed.sorted())
+    }
+}
+
+/// Faut-il relayer un clic vers un item système ? Seulement sous assertion (MenuBarAgent
+/// ignore alors les clics sur horloge, batterie, Wi‑Fi) et si le clic tombe sur l'un d'eux.
+public enum ClickBridgeRule {
+    public static func shouldBridge(click: CGPoint, systemItemFrames: [CGRect], assertionActive: Bool) -> Bool {
+        guard assertionActive else { return false }
+        return systemItemFrames.contains { $0.insetBy(dx: -1, dy: -1).contains(click) }
+    }
+}
+
+/// Re-masquage automatique : on attend qu'aucun menu ne soit ouvert.
+public enum AutoRehideRule {
+    public static func shouldRehide(state: RevealState, elapsed: TimeInterval, delay: TimeInterval, menuOpen: Bool, pointerInMenuBar: Bool) -> Bool {
+        state == .revealed && delay > 0 && elapsed >= delay && !menuOpen && !pointerInMenuBar
     }
 }

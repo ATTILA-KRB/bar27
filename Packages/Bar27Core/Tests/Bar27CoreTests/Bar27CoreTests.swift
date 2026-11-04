@@ -54,3 +54,20 @@ private let layout = Layout(sections: ["b.hid": .hidden, "c.always": .alwaysHidd
     #expect(store.load() == Layout(), "fichier corrompu → layout vide, pas de crash")
     try? FileManager.default.removeItem(at: dir)
 }
+
+@Test func bridgesOnlySystemClicksUnderAssertion() {
+    let clock = CGRect(x: 1382, y: 0, width: 110, height: 33)
+    #expect(ClickBridgeRule.shouldBridge(click: CGPoint(x: 1400, y: 10), systemItemFrames: [clock], assertionActive: true))
+    #expect(!ClickBridgeRule.shouldBridge(click: CGPoint(x: 1400, y: 10), systemItemFrames: [clock], assertionActive: false))
+    #expect(!ClickBridgeRule.shouldBridge(click: CGPoint(x: 500, y: 10), systemItemFrames: [clock], assertionActive: true))
+    #expect(!ClickBridgeRule.shouldBridge(click: CGPoint(x: 1400, y: 300), systemItemFrames: [clock], assertionActive: true))
+}
+
+@Test func autoRehideWaitsForMenusAndPointer() {
+    #expect(AutoRehideRule.shouldRehide(state: .revealed, elapsed: 10, delay: 8, menuOpen: false, pointerInMenuBar: false))
+    #expect(!AutoRehideRule.shouldRehide(state: .revealed, elapsed: 5, delay: 8, menuOpen: false, pointerInMenuBar: false))
+    #expect(!AutoRehideRule.shouldRehide(state: .revealed, elapsed: 10, delay: 8, menuOpen: true, pointerInMenuBar: false))
+    #expect(!AutoRehideRule.shouldRehide(state: .revealed, elapsed: 10, delay: 8, menuOpen: false, pointerInMenuBar: true))
+    #expect(!AutoRehideRule.shouldRehide(state: .revealedAll, elapsed: 10, delay: 8, menuOpen: false, pointerInMenuBar: false))
+    #expect(!AutoRehideRule.shouldRehide(state: .revealed, elapsed: 99, delay: 0, menuOpen: false, pointerInMenuBar: false), "0 = désactivé")
+}

@@ -8,6 +8,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var controller: ConcealmentController!
     private var statusItem: StatusItemController?
     private var layoutWindow: NSWindow?
+    private var hotKey: HotKey?
 
     static func main() {
         let app = NSApplication.shared
@@ -21,8 +22,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let bundleID = Bundle.main.bundleIdentifier ?? "com.attila-krb.Bar27"
         if HeadlessCommands.run(arguments: CommandLine.arguments, selfBundleID: bundleID) { return }
 
-        controller = ConcealmentController(store: .applicationSupport(bundleID: bundleID), selfBundleID: bundleID)
+        // `-LayoutPath <fichier>` : layout de test (scripts/verify-*.sh), sans toucher au vrai.
+        let store = UserDefaults.standard.string(forKey: "LayoutPath").map { LayoutStore(url: URL(fileURLWithPath: $0)) }
+            ?? .applicationSupport(bundleID: bundleID)
+        controller = ConcealmentController(store: store, selfBundleID: bundleID)
         statusItem = StatusItemController(controller: controller) { [weak self] in self?.showLayout() }
+        controller.onStateChange = { [weak self] in self?.statusItem?.updateIcon() }
+        hotKey = HotKey { [weak self] in self?.controller.toggle() }
         if !Permissions.accessibility { Permissions.requestAccessibility() }
         controller.start()
     }

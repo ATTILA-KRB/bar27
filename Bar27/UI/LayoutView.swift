@@ -45,11 +45,44 @@ struct LayoutView: View {
                     .labelsHidden()
                 }.width(170)
             }
+            settings
             diagnostics
         }
         .padding()
-        .frame(minWidth: 560, minHeight: 420)
+        .frame(minWidth: 600, minHeight: 640)
         .task { await controller.refreshItems() }
+    }
+
+    @State private var launchAtLogin = LoginItem.isEnabled
+    @State private var loginError: String?
+
+    private var settings: some View {
+        @Bindable var controller = controller
+        return Form {
+            Picker("Re-masquer après", selection: $controller.autoRehideDelay) {
+                Text("Jamais").tag(0.0)
+                Text("5 s").tag(5.0)
+                Text("10 s").tag(10.0)
+                Text("30 s").tag(30.0)
+            }
+            Picker("Méthode de masquage", selection: $controller.preferredBackend) {
+                Text("Automatique").tag(HidingBackend?.none)
+                Text("Interrupteur natif (accès complet au disque)").tag(HidingBackend?.some(.native))
+                Text("Assertion").tag(HidingBackend?.some(.assessment))
+            }
+            if controller.preferredBackend == .native && !controller.nativeAvailable {
+                Text("Ajoutez Bar27 dans Réglages > Confidentialité > Accès complet au disque, puis relancez.")
+                    .font(.caption).foregroundStyle(.orange)
+            }
+            Toggle("Ouvrir à la connexion", isOn: $launchAtLogin)
+                .onChange(of: launchAtLogin) { _, enabled in
+                    do { try LoginItem.set(enabled); loginError = nil } catch { loginError = error.localizedDescription; launchAtLogin = LoginItem.isEnabled }
+                }
+            if let loginError { Text(loginError).font(.caption).foregroundStyle(.red) }
+            Text("Raccourci : ⌃⌥⌘B").font(.caption).foregroundStyle(.secondary)
+        }
+        .formStyle(.grouped)
+        .frame(maxHeight: 230)
     }
 
     private var diagnostics: some View {
@@ -58,7 +91,8 @@ struct LayoutView: View {
                 if let scan = controller.lastScan {
                     Text("\(scan.items.count) icônes · lecture \(Int(scan.duration * 1000)) ms" + (scan.unresponsive.isEmpty ? "" : " · lentes : \(scan.unresponsive.joined(separator: ", "))"))
                 }
-                Text("Masquées : " + (controller.activePlan?.concealedBundleIDs.joined(separator: ", ") ?? "aucune"))
+                Text("Méthode : " + (controller.backend == .native ? "interrupteur natif" : "assertion (clics système relayés : \(controller.bridgedClicks))"))
+                Text("Masquées : " + (controller.concealed.isEmpty ? "aucune" : controller.concealed.joined(separator: ", ")))
                 if let error = controller.lastError { Text(error).foregroundStyle(.red) }
             }
             .font(.caption)

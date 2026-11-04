@@ -31,3 +31,12 @@ Les clics sur l'horloge, la batterie ou le Wi‑Fi sont ignorés tant que l'asse
 - Lecture AX parallèle : **588 ms** contre 1,9 s en séquentiel.
 - `scripts/verify-conceal.sh com.openai.codex` : seule Codex disparaît (les icônes repliées à l'encoche reprennent sa place), puis tout revient.
 - Lancée, l'app publie son icône (`com.attila-krb.Bar27`)… **repliée derrière le débordement de l'encoche** (x = 869), comme toute nouvelle icône. À traiter en phase 2 : l'icône Bar27 doit rester accessible.
+
+## Phase 2 — constats (2026-11-04)
+
+- **Relais de clics (assertion)** : `scripts/verify-click-bridge.sh` donne 6/6 et 8/8 clics sur l'horloge qui ouvrent le Centre de notifications, en 190–245 ms contre 150 ms sans Bar27. Le contrôle négatif (`EXTRA_ARGS="-DisableClickBridge YES"`) donne 0/4 : le relais est bien nécessaire et efficace.
+- **Raccourci ⌃⌥⌘B (Carbon)** : il fonctionne. Un `CGEvent` clavier synthétique ne l'atteint pas, alors qu'un `osascript`/System Events l'atteint. C'est donc une limite de l'injecteur de test, pas de l'app.
+- **Re-masquage auto** : il est différé si un menu est ouvert ou si le pointeur est dans la barre. Le cycle masqué → révélé → remasqué en 3 s est validé (`scripts/verify-toggle.sh`). Piège : `-Clé 3` passé en argument arrive comme une chaîne, il faut donc lire avec `double(forKey:)`.
+- **Icône de Bar27 sous assertion** : MenuBarAgent la retire aussi (dans l'AX, x = 7 ; à l'écran, elle n'est pas dessinée), même quand elle est dans l'allowlist. Ice fait le même constat (`Concealer27.swift`). Il ne reste donc que le raccourci pour révéler. Une fois révélée sans section « toujours masquée », l'assertion est levée et l'icône revient.
+- **Interrupteur natif** (`trackedApplications`, `group.com.apple.controlcenter`) : la lecture échoue sans **accès complet au disque**, et aucune invite système n'apparaît. Le backend est codé (`NativeAllowListBackend`, règles testées dans `TrackedApplications`), mais pas encore validé sur la machine.
+- **Piège de test** : Bar27 lancé seul et qui lit un fichier dans `~/Documents` reste bloqué sur l'invite TCC « Documents ». Les layouts de test sont donc placés dans `$TMPDIR/bar27-verify`.

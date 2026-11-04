@@ -8,7 +8,7 @@ func note(_ s: String) {
     if let h = try? FileHandle(forWritingTo: log) { h.seekToEndOfFile(); h.write(line.data(using: .utf8)!); try? h.close() }
     else { try? line.write(to: log, atomically: true, encoding: .utf8) }
 }
-let allowed = ["com.anthropic.claudefordesktop"]   // une app laissée visible pour tester l'allowlist
+let allowed = CommandLine.arguments.count > 2 ? CommandLine.arguments[2].split(separator: ",").map(String.init) : ["com.anthropic.claudefordesktop"]
 let hold: Double = 4
 
 guard dlopen("/System/Library/PrivateFrameworks/MenuBarClientCore.framework/MenuBarClientCore", RTLD_NOW) != nil,
