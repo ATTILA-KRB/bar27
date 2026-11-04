@@ -1,0 +1,29 @@
+{
+  "" : {
+    "diagnostics" : "/Users/rayan/Documents/Bartender/Packages/Bar27Core/.build/out/Intermediates.noindex/Bar27Core.build/Debug/Bar27CoreTests-p.build/Objects-normal/arm64/Bar27CoreTests-primary.dia",
+    "emit-module-dependencies" : "/Users/rayan/Documents/Bartender/Packages/Bar27Core/.build/out/Intermediates.noindex/Bar27Core.build/Debug/Bar27CoreTests-p.build/Objects-normal/arm64/Bar27CoreTests-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/rayan/Documents/Bartender/Packages/Bar27Core/.build/out/Intermediates.noindex/Bar27Core.build/Debug/Bar27CoreTests-p.build/Objects-normal/arm64/Bar27CoreTests-primary-emit-module.dia",
+    "pch" : "/Users/rayan/Documents/Bartender/Packages/Bar27Core/.build/out/Intermediates.noindex/Bar27Core.build/Debug/Bar27CoreTests-p.build/Objects-normal/arm64/Bar27CoreTests-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/rayan/Documents/Bartender/Packages/Bar27Core/.build/out/Intermediates.noindex/Bar27Core.build/Debug/Bar27CoreTests-p.build/Objects-normal/arm64/Bar27CoreTests-primary.swiftdeps"
+  },
+  "/Users/rayan/Documents/Bartender/Packages/Bar27Core/.build/out/Intermediates.noindex/Bar27Core.build/Debug/Bar27CoreTests-p.build/DerivedSources/test_entry_point.swift" : {
+    "const-values" : "/Users/rayan/Documents/Bartender/Packages/Bar27Core/.build/out/Intermediates.noindex/Bar27Core.build/Debug/Bar27CoreTests-p.build/Objects-normal/arm64/test_entry_point.swiftconstvalues",
+    "dependencies" : "/Users/rayan/Documents/Bartender/Packages/Bar27Core/.build/out/Intermediates.noindex/Bar27Core.build/Debug/Bar27CoreTests-p.build/Objects-normal/arm64/test_entry_point.d",
+    "diagnostics" : "/Users/rayan/Documents/Bartender/Packages/Bar27Core/.build/out/Intermediates.noindex/Bar27Core.build/Debug/Bar27CoreTests-p.build/Objects-normal/arm64/test_entry_point.dia",
+    "index-unit-output-path" : "/Bar27Core.build/Debug/Bar27CoreTests-p.build/Objects-normal/arm64/test_entry_point.o",
+    "llvm-bc" : "/Users/rayan/Documents/Bartender/Packages/Bar27Core/.build/out/Intermediates.noindex/Bar27Core.build/Debug/Bar27CoreTests-p.build/Objects-normal/arm64/test_entry_point.bc",
+    "object" : "/Users/rayan/Documents/Bartender/Packages/Bar27Core/.build/out/Intermediates.noindex/Bar27Core.build/Debug/Bar27CoreTests-p.build/Objects-normal/arm64/test_entry_point.o",
+    "swift-dependencies" : "/Users/rayan/Documents/Bartender/Packages/Bar27Core/.build/out/Intermediates.noindex/Bar27Core.build/Debug/Bar27CoreTests-p.build/Objects-normal/arm64/test_entry_point.swiftdeps",
+    "swiftmodule" : "/Users/rayan/Documents/Bartender/Packages/Bar27Core/.build/out/Intermediates.noindex/Bar27Core.build/Debug/Bar27CoreTests-p.build/Objects-normal/arm64/test_entry_point~partial.swiftmodule"
+  },
+  "/Users/rayan/Documents/Bartender/Packages/Bar27Core/Tests/Bar27CoreTests/Bar27CoreTests.swift" : {
+    "const-values" : "/Users/rayan/Documents/Bartender/Packages/Bar27Core/.build/out/Intermediates.noindex/Bar27Core.build/Debug/Bar27CoreTests-p.build/Objects-normal/arm64/Bar27CoreTests.swiftconstvalues",
+    "dependencies" : "/Users/rayan/Documents/Bartender/Packages/Bar27Core/.build/out/Intermediates.noindex/Bar27Core.build/Debug/Bar27CoreTests-p.build/Objects-normal/arm64/Bar27CoreTests.d",
+    "diagnostics" : "/Users/rayan/Documents/Bartender/Packages/Bar27Core/.build/out/Intermediates.noindex/Bar27Core.build/Debug/Bar27CoreTests-p.build/Objects-normal/arm64/Bar27CoreTests.dia",
+    "index-unit-output-path" : "/Bar27Core.build/Debug/Bar27CoreTests-p.build/Objects-normal/arm64/Bar27CoreTests.o",
+    "llvm-bc" : "/Users/rayan/Documents/Bartender/Packages/Bar27Core/.build/out/Intermediates.noindex/Bar27Core.build/Debug/Bar27CoreTests-p.build/Objects-normal/arm64/Bar27CoreTests.bc",
+    "object" : "/Users/rayan/Documents/Bartender/Packages/Bar27Core/.build/out/Intermediates.noindex/Bar27Core.build/Debug/Bar27CoreTests-p.build/Objects-normal/arm64/Bar27CoreTests.o",
+    "swift-dependencies" : "/Users/rayan/Documents/Bartender/Packages/Bar27Core/.build/out/Intermediates.noindex/Bar27Core.build/Debug/Bar27CoreTests-p.build/Objects-normal/arm64/Bar27CoreTests.swiftdeps",
+    "swiftmodule" : "/Users/rayan/Documents/Bartender/Packages/Bar27Core/.build/out/Intermediates.noindex/Bar27Core.build/Debug/Bar27CoreTests-p.build/Objects-normal/arm64/Bar27CoreTests~partial.swiftmodule"
+  }
+}

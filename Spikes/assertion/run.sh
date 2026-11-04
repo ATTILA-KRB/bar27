@@ -11,11 +11,14 @@ cat > "$OUT/Contents/Info.plist" <<PL
 PL
 ID=$(security find-identity -v -p codesigning | awk '/Developer ID Application/{print $2; exit}')
 codesign --force --options runtime --timestamp=none -s "$ID" "$OUT" && codesign -dv "$OUT" 2>&1 | rg 'Authority=Developer|TeamIdentifier'
-LOG=$PWD/shots/log.txt; rm -f "$LOG"
-screencapture -x -R 800,0,712,32 shots/0-avant.png
+LOG=$PWD/shots/log.txt; rm -f "$LOG" shots/*.png
+# Capture via ScreenCaptureKit des fenêtres de MenuBarAgent : marche même en plein écran.
+CAP=build/mba-capture; swiftc -O -o "$CAP" ../mba-capture.swift 2>/dev/null
+shot() { "$CAP" "shots/$1" >/dev/null; }
+shot 0-avant
 open -n "$OUT" --args "$LOG"
 for i in $(seq 1 40); do rg -q ACTIVE "$LOG" 2>/dev/null && break; sleep 0.1; done
-sleep 0.6; screencapture -x -R 800,0,712,32 shots/1-pendant.png
+sleep 0.6; shot 1-pendant
 for i in $(seq 1 80); do rg -q RELEASED "$LOG" 2>/dev/null && break; sleep 0.1; done
-sleep 0.6; screencapture -x -R 800,0,712,32 shots/2-apres.png
+sleep 0.6; shot 2-apres
 cat "$LOG"

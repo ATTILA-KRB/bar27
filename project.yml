@@ -1,0 +1,50 @@
+name: Bar27
+options:
+  bundleIdPrefix: com.attila-krb
+  deploymentTarget:
+    macOS: "27.0"
+  createIntermediateGroups: true
+packages:
+  Bar27Core:
+    path: Packages/Bar27Core
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MACOSX_DEPLOYMENT_TARGET: "27.0"
+    DEVELOPMENT_TEAM: 5FMH389VS7
+    # L'assertion MenuBarAgent n'est honorée que pour une app signée Developer ID,
+    # y compris en Debug : signature manuelle Developer ID partout.
+    CODE_SIGN_STYLE: Manual
+    CODE_SIGN_IDENTITY: "Developer ID Application"
+    ENABLE_HARDENED_RUNTIME: YES
+    # Sinon la Debug charge une .debug.dylib refusée par le runtime durci.
+    ENABLE_DEBUG_DYLIB: NO
+    OTHER_CODE_SIGN_FLAGS: "--timestamp=none"
+targets:
+  Bar27:
+    type: application
+    platform: macOS
+    sources: [Bar27]
+    dependencies:
+      - package: Bar27Core
+    info:
+      path: Bar27/Info.plist
+      properties:
+        CFBundleDisplayName: Bar27
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
+        LSUIElement: true
+        LSMinimumSystemVersion: "27.0"
+        NSHumanReadableCopyright: "© 2026 Rayan Kroubi — GPLv3"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.attila-krb.Bar27
+        PRODUCT_NAME: Bar27
+        GENERATE_INFOPLIST_FILE: NO
+schemes:
+  Bar27:
+    build:
+      targets:
+        Bar27: all
+    test:
+      targets: []

@@ -1,0 +1,11 @@
+Target dependency graph (4 targets)
+Target 'AllIncludingTests' in project 'Aggregate'
+➜ Explicit dependency on target 'Bar27CoreTests-product' in project 'Bar27Core'
+➜ Dependency on target 'Bar27CoreTests-product' in project 'Bar27Core' via transitive dependency through 'Bar27CoreTests-test-runner'
+➜ Explicit dependency on target 'Bar27Core-product' in project 'Bar27Core'
+➜ Explicit dependency on target 'Bar27Core' in project 'Bar27Core'
+Target 'Bar27Core-product' in project 'Bar27Core'
+➜ Explicit dependency on target 'Bar27Core' in project 'Bar27Core'
+Target 'Bar27CoreTests-product' in project 'Bar27Core'
+➜ Explicit dependency on target 'Bar27Core' in project 'Bar27Core'
+Target 'Bar27Core' in project 'Bar27Core' (no dependencies)

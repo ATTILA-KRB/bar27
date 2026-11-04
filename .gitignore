@@ -3,3 +3,5 @@ Spikes/**/shots/
 .DS_Store
 DerivedData/
 *.xcodeproj/xcuserdata/
+build/
+Bar27.xcodeproj/
