@@ -35,3 +35,10 @@ Le masquage par assertion « assessment mode » est adapté d'[Ice](https://gith
 ## Notarisation et déploiement
 
 `scripts/notarize.sh` : build Release (horodatage sécurisé, sans get-task-allow), notarisation par la clé API App Store Connect (`ASC_KEY_PATH`, `ASC_KEY_ID`, `ASC_ISSUER_ID`), agrafage, contrôle Gatekeeper. `scripts/deploy-local.sh` : notarise puis installe dans `/Applications`.
+
+## Utilisation
+
+- Premier lancement : la fenêtre « Organiser la barre » s'ouvre. Rangez chaque app en Visible, Masqué ou Toujours masqué.
+- Révéler : clic sur l'icône Bar27, survol d'une zone vide de la barre, ou ⌃⌥⌘B. Re-masquage automatique réglable.
+- Icône introuvable : double-cliquez Bar27 dans /Applications, la fenêtre se rouvre.
+- Accès complet au disque recommandé : masquage par l'interrupteur natif de macOS ; sinon méthode de secours.

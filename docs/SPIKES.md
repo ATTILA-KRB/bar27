@@ -48,3 +48,9 @@ Les clics sur l'horloge, la batterie ou le Wi‑Fi sont ignorés tant que l'asse
 
   L'élément AX de l'app éteinte reste présent : sa présence ne prouve pas qu'elle est visible.
 - **Piège de test** : Bar27 lancé seul et qui lit un fichier dans `~/Documents` reste bloqué sur l'invite TCC « Documents ». Les layouts de test sont donc placés dans `$TMPDIR/bar27-verify`.
+
+## Phase 3 — usage réel (2026-11-04)
+
+- Révélation au survol d'une zone vide (secours : seul accès sans l'icône, retirée sous assertion). Zone vide = `AXUIElementCopyElementAtPosition` rend `AXMenuBar` (et non `AXMenuBarItem`) ; test hors fil principal, seulement pointeur dans la barre, 0,35 s d'arrêt, une fois par survol. `scripts/verify-hover.sh` + négatifs (`HOVER=NO`, `HOVER_X=clock`).
+- Piège de test : la zone vide dépend des menus de l'app au premier plan (Dia jusqu'à x = 620) et les icônes se décalent sous assertion → x mesurés à chaque passage (`Spikes/empty-x.swift`, `--dump-items`), jamais codés en dur.
+- Fenêtre « Organiser » : liste les apps rangées même absentes de la barre (non lancées, ou masquées donc invisibles à l'AX), suivi des autorisations toutes les 2 s, bascule de méthode sans relance (contrôle toutes les 5 s, sauf échec d'écriture native), réglages, remise à zéro. Ouverte au premier lancement et sur double-clic Finder (`applicationShouldHandleReopen`).

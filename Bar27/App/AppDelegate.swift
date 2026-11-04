@@ -32,6 +32,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if !Permissions.accessibility { Permissions.requestAccessibility() }
         installTerminationSignals()
         controller.start()
+        // Premier lancement (rien n'est rangé, l'icône peut finir derrière l'encoche) ou test : on ouvre la fenêtre.
+        let defaults = UserDefaults.standard
+        if !defaults.bool(forKey: "Onboarded") || defaults.bool(forKey: "OpenLayout") {
+            defaults.set(true, forKey: "Onboarded")
+            showLayout()
+        }
+    }
+
+    /// Double-clic sur Bar27 dans le Finder alors qu'il tourne : seul accès garanti si l'icône est cachée.
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        showLayout()
+        return false
     }
 
     /// En natif, l'interrupteur survit au processus : SIGTERM/SIGINT passent par

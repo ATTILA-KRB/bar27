@@ -32,6 +32,14 @@ final class ConcealmentController {
         }
     }
 
+    /// Révéler au survol d'une zone vide de la barre.
+    var revealOnHover: Bool {
+        didSet {
+            UserDefaults.standard.set(revealOnHover, forKey: Keys.revealOnHover)
+            revealOnHover ? hoverRevealer.start() : hoverRevealer.stop()
+        }
+    }
+
     /// Délai de re-masquage après révélation (s) ; 0 = jamais.
     var autoRehideDelay: TimeInterval {
         didSet { UserDefaults.standard.set(autoRehideDelay, forKey: Keys.autoRehide) }
@@ -49,6 +57,14 @@ final class ConcealmentController {
     @ObservationIgnored private let store: LayoutStore
     @ObservationIgnored private let selfBundleID: String
     @ObservationIgnored private let logger = Logger(category: "ConcealmentController")
+    @ObservationIgnored private var backendTimer: Timer?
+    /// Écriture native en échec alors que la lecture passe : on reste en secours jusqu'au relancement,
+    /// sinon le contrôle périodique rebasculerait en natif et échouerait en boucle.
+    @ObservationIgnored private var nativeWriteFailed = false
+    @ObservationIgnored private lazy var hoverRevealer = HoverRevealer { [weak self] in
+        guard let self, self.state == .collapsed else { return }
+        self.set(.revealed)
+    }
     @ObservationIgnored private(set) lazy var clickBridge = ClickBridge { [weak self] location in
         Task { @MainActor in await self?.bridgeClick(at: location) }
     }
@@ -56,6 +72,7 @@ final class ConcealmentController {
     private enum Keys {
         static let backend = "HidingBackend"
         static let autoRehide = "AutoRehideDelay"
+        static let revealOnHover = "RevealOnHover"
     }
 
     init(store: LayoutStore, selfBundleID: String) {
@@ -64,6 +81,7 @@ final class ConcealmentController {
         self.layout = store.load()
         self.preferredBackend = UserDefaults.standard.string(forKey: Keys.backend).flatMap(HidingBackend.init(rawValue:))
         // `double(forKey:)` convertit aussi les chaînes du domaine d'arguments (`-AutoRehideDelay 3`).
+        self.revealOnHover = UserDefaults.standard.object(forKey: Keys.revealOnHover) == nil ? true : UserDefaults.standard.bool(forKey: Keys.revealOnHover)
         self.autoRehideDelay = UserDefaults.standard.object(forKey: Keys.autoRehide) == nil ? 10 : UserDefaults.standard.double(forKey: Keys.autoRehide)
     }
 
@@ -85,6 +103,11 @@ final class ConcealmentController {
         observe(.default, NSApplication.didChangeScreenParametersNotification) { $0.refreshSystemFrames() }
         // `-DisableClickBridge YES` : contrôle négatif de scripts/verify-click-bridge.sh.
         if !UserDefaults.standard.bool(forKey: "DisableClickBridge") { clickBridge.start() }
+        if revealOnHover { hoverRevealer.start() }
+        // Accès complet au disque accordé (ou retiré) en cours de route : on change de méthode sans relancer.
+        backendTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated { self?.switchBackendIfNeeded() }
+        }
         apply()
         Task { await refreshItems() }
     }
@@ -93,6 +116,8 @@ final class ConcealmentController {
         for (center, token) in observers { center.removeObserver(token) }
         observers.removeAll()
         rehideTimer?.invalidate()
+        backendTimer?.invalidate()
+        hoverRevealer.stop()
         clickBridge.stop()
         releaseEverything()
     }
@@ -167,6 +192,7 @@ final class ConcealmentController {
             } catch {
                 lastError = String(describing: error)
                 logger.error("Natif en échec, repli sur l'assertion : \(String(describing: error), privacy: .public)")
+                nativeWriteFailed = true
                 backend = .assessment
                 await applyAssertion()
             }
@@ -224,13 +250,21 @@ final class ConcealmentController {
     private func resolvedBackend() -> HidingBackend {
         switch preferredBackend {
         case .assessment: .assessment
-        case .native, nil: NativeAllowListBackend.isAvailable ? .native : .assessment
+        case .native, nil: !nativeWriteFailed && NativeAllowListBackend.isAvailable ? .native : .assessment
         }
     }
 
-    private func switchBackendIfNeeded() {
+    /// Remet tout en « visible ».
+    func resetLayout() {
+        layout = Layout()
+        do { try store.save(layout) } catch { lastError = "Sauvegarde du layout : \(error.localizedDescription)" }
+        apply()
+    }
+
+    func switchBackendIfNeeded() {
         let next = resolvedBackend()
         guard next != backend else { return }
+        logger.notice("Méthode : \(self.backend.rawValue, privacy: .public) → \(next.rawValue, privacy: .public)")
         releaseEverything()
         backend = next
         apply()
