@@ -23,8 +23,12 @@ final class StatusItemController: NSObject {
     }
 
     func updateIcon() {
-        let symbol = controller.state == .collapsed ? "chevron.left.2" : "chevron.right.2"
+        // Pas de double chevron : c'est le glyphe du bouton de débordement natif de macOS 27
+        // (« Afficher les éléments masqués »), les deux se confondaient.
+        let collapsed = controller.state == .collapsed
+        let symbol = collapsed ? "menubar.arrow.down.rectangle" : "menubar.arrow.up.rectangle"
         statusItem.button?.image = NSImage(systemSymbolName: symbol, accessibilityDescription: "Bar27")
+        statusItem.button?.toolTip = collapsed ? "Bar27 — afficher les icônes masquées (⌃⌥⌘B)" : "Bar27 — masquer (⌃⌥⌘B)"
     }
 
     @objc private func clicked() {
