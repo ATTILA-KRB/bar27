@@ -31,3 +31,7 @@ Le masquage par assertion « assessment mode » est adapté d'[Ice](https://gith
 ## Installation locale
 
 `scripts/install.sh` : build Release signé Developer ID, arrêt propre de l'instance en cours, copie dans `/Applications`, lancement. Accorder ensuite l'accès complet au disque à `/Applications/Bar27.app` (sinon repli sur l'assertion).
+
+## Notarisation et déploiement
+
+`scripts/notarize.sh` : build Release (horodatage sécurisé, sans get-task-allow), notarisation par la clé API App Store Connect (`ASC_KEY_PATH`, `ASC_KEY_ID`, `ASC_ISSUER_ID`), agrafage, contrôle Gatekeeper. `scripts/deploy-local.sh` : notarise puis installe dans `/Applications`.

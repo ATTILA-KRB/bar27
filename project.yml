@@ -19,7 +19,13 @@ settings:
     ENABLE_HARDENED_RUNTIME: YES
     # Sinon la Debug charge une .debug.dylib refusée par le runtime durci.
     ENABLE_DEBUG_DYLIB: NO
-    OTHER_CODE_SIGN_FLAGS: "--timestamp=none"
+  configs:
+    Debug:
+      OTHER_CODE_SIGN_FLAGS: "--timestamp=none"
+    # Notarisation : horodatage sécurisé obligatoire, pas de get-task-allow.
+    Release:
+      OTHER_CODE_SIGN_FLAGS: "--timestamp"
+      CODE_SIGN_INJECT_BASE_ENTITLEMENTS: NO
 targets:
   Bar27:
     type: application
