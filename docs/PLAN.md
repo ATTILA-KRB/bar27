@@ -104,4 +104,5 @@ Vérification continue : tests unitaires du Planner (sans barre) + scripts d'int
 
 ## État phase 2 (2026-11-04)
 - Fait : deux backends (natif prioritaire, assertion en repli), relais de clics système, raccourci ⌃⌥⌘B, re-masquage auto, ouverture à la connexion, réglages dans « Organiser la barre ».
-- À valider : backend natif avec l'accès complet au disque accordé ; présence de l'icône Bar27 en natif ; moyen de révélation sans raccourci sous assertion (survol ou clic sur la barre vide).
+- Validé : backend natif (scripts/verify-native.sh), icône Bar27 présente en natif, rallumage sur SIGTERM et au relancement après plantage.
+- Reste : onboarding « Accès complet au disque » dans l'app (détection et lien vers Réglages) ; moyen de révélation sans raccourci sous assertion ; phase 3 (UI d'organisation).

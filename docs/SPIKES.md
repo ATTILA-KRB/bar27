@@ -38,5 +38,13 @@ Les clics sur l'horloge, la batterie ou le Wi‑Fi sont ignorés tant que l'asse
 - **Raccourci ⌃⌥⌘B (Carbon)** : il fonctionne. Un `CGEvent` clavier synthétique ne l'atteint pas, alors qu'un `osascript`/System Events l'atteint. C'est donc une limite de l'injecteur de test, pas de l'app.
 - **Re-masquage auto** : il est différé si un menu est ouvert ou si le pointeur est dans la barre. Le cycle masqué → révélé → remasqué en 3 s est validé (`scripts/verify-toggle.sh`). Piège : `-Clé 3` passé en argument arrive comme une chaîne, il faut donc lire avec `double(forKey:)`.
 - **Icône de Bar27 sous assertion** : MenuBarAgent la retire aussi (dans l'AX, x = 7 ; à l'écran, elle n'est pas dessinée), même quand elle est dans l'allowlist. Ice fait le même constat (`Concealer27.swift`). Il ne reste donc que le raccourci pour révéler. Une fois révélée sans section « toujours masquée », l'assertion est levée et l'icône revient.
-- **Interrupteur natif** (`trackedApplications`, `group.com.apple.controlcenter`) : la lecture échoue sans **accès complet au disque**, et aucune invite système n'apparaît. Le backend est codé (`NativeAllowListBackend`, règles testées dans `TrackedApplications`), mais pas encore validé sur la machine.
+- **Interrupteur natif** (`trackedApplications`, `group.com.apple.controlcenter`) : sans accès complet au disque, sandboxd refuse `kTCCServiceSystemPolicyAppDataDetailed`, avec « user interaction not allowed » et sans invite. Une fois l'accès accordé à Bar27.app (lancée par `open`), `scripts/verify-native.sh` passe entièrement :
+  - masquage effectif, confirmé par capture ;
+  - l'icône de Bar27 reste visible ;
+  - 4/4 clics système sans relais ;
+  - le raccourci rallume puis éteint ;
+  - après un SIGTERM, tout est rallumé ;
+  - après un SIGKILL, l'app reste éteinte puis se rallume au lancement suivant.
+
+  L'élément AX de l'app éteinte reste présent : sa présence ne prouve pas qu'elle est visible.
 - **Piège de test** : Bar27 lancé seul et qui lit un fichier dans `~/Documents` reste bloqué sur l'invite TCC « Documents ». Les layouts de test sont donc placés dans `$TMPDIR/bar27-verify`.

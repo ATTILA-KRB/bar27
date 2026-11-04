@@ -30,7 +30,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         controller.onStateChange = { [weak self] in self?.statusItem?.updateIcon() }
         hotKey = HotKey { [weak self] in self?.controller.toggle() }
         if !Permissions.accessibility { Permissions.requestAccessibility() }
+        installTerminationSignals()
         controller.start()
+    }
+
+    /// En natif, l'interrupteur survit au processus : SIGTERM/SIGINT passent par
+    /// `terminate` pour tout rallumer. (SIGKILL/plantage : rallumé au lancement suivant.)
+    private var signalSources: [DispatchSourceSignal] = []
+
+    private func installTerminationSignals() {
+        for sig in [SIGTERM, SIGINT] {
+            signal(sig, SIG_IGN)
+            let source = DispatchSource.makeSignalSource(signal: sig, queue: .main)
+            source.setEventHandler { NSApp.terminate(nil) }
+            source.resume()
+            signalSources.append(source)
+        }
     }
 
     func applicationWillTerminate(_ notification: Notification) {

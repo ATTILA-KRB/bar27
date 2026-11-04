@@ -14,7 +14,7 @@ enum HeadlessCommands {
             var text = ""
             if !NativeAllowListBackend.isAvailable {
                 NativeAllowListBackend.requestAccess()
-                for _ in 0..<60 where !NativeAllowListBackend.isAvailable { Thread.sleep(forTimeInterval: 0.5) }
+                for _ in 0..<6 where !NativeAllowListBackend.isAvailable { Thread.sleep(forTimeInterval: 0.5) }
             }
             do {
                 if arguments.count > i + 3 {
@@ -26,6 +26,14 @@ enum HeadlessCommands {
                 text += "recorded=\(NativeAllowListBackend.recorded.sorted())\n"
             } catch {
                 text += "ERREUR \(error)\n"
+                // Diagnostic : lecture directe du fichier (FDA effectif ? clé présente ?).
+                do {
+                    let data = try Data(contentsOf: NativeAllowListBackend.plistURL)
+                    let plist = try PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] ?? [:]
+                    text += "FICHIER lisible, clés : \(plist.keys.sorted())\n"
+                } catch {
+                    text += "FICHIER illisible : \(error.localizedDescription)\n"
+                }
             }
             try? text.write(to: out, atomically: true, encoding: .utf8)
             exit(0)
