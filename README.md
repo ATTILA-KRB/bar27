@@ -27,3 +27,7 @@ Plan : `docs/PLAN.md` · Mesures : `docs/SPIKES.md`.
 Le masquage par assertion « assessment mode » est adapté d'[Ice](https://github.com/jordanbaird/Ice)
 (PR #995), de [Barometer](https://github.com/mackid1993/Barometer) et de
 [Thaw](https://github.com/thaw-app/Thaw), tous sous GPLv3.
+
+## Installation locale
+
+`scripts/install.sh` : build Release signé Developer ID, arrêt propre de l'instance en cours, copie dans `/Applications`, lancement. Accorder ensuite l'accès complet au disque à `/Applications/Bar27.app` (sinon repli sur l'assertion).
