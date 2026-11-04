@@ -38,6 +38,17 @@ enum HeadlessCommands {
             try? text.write(to: out, atomically: true, encoding: .utf8)
             exit(0)
         }
+        // --login-item on|off|status : ouverture à la connexion (SMAppService), sortie sur stdout.
+        if let i = arguments.firstIndex(of: "--login-item") {
+            let action = arguments.count > i + 1 ? arguments[i + 1] : "status"
+            do {
+                if action != "status" { try LoginItem.set(action == "on") }
+                print("LOGIN \(LoginItem.isEnabled ? "on" : "off")")
+            } catch {
+                print("ERREUR \(error.localizedDescription)")
+            }
+            exit(0)
+        }
         if arguments.contains("--dump-items") {
             let scan = ItemProvider.scanSync()
             let rows = scan.items.map { ["id": $0.id.description, "app": $0.appName ?? "", "title": $0.title ?? "", "x": "\(Int($0.frame.minX))", "w": "\(Int($0.frame.width))"] }
