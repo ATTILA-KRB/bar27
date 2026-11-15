@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/logo.png" width="160" alt="Bar27"></p>
+
 # Bar27
 
 Gestionnaire de barre des menus pour **macOS 27**, open source (GPLv3) : il masque les icônes
@@ -15,6 +17,7 @@ macOS 27 masque **par application** et range lui-même les icônes ; Bar27 ne r�
 scripts/test.sh                 # tests du cœur + build signé + inventaire AX
 scripts/build.sh                # build/Bar27.app (Debug, signée Developer ID)
 scripts/verify-conceal.sh <id>  # masque une app 3 s, captures dans build/verify/
+swift scripts/make-icon.swift   # régénère l'icône (AppIcon.appiconset + docs/logo.png)
 ```
 
 Prérequis : Xcode (SDK macOS 27), XcodeGen, certificat Developer ID (l'assertion de
@@ -34,7 +37,7 @@ Le masquage par assertion « assessment mode » est adapté d'[Ice](https://gith
 
 ## Notarisation et déploiement
 
-`scripts/notarize.sh` : build Release (horodatage sécurisé, sans get-task-allow), notarisation par la clé API App Store Connect (`ASC_KEY_PATH`, `ASC_KEY_ID`, `ASC_ISSUER_ID`), agrafage, contrôle Gatekeeper. `scripts/deploy-local.sh` : notarise puis installe dans `/Applications`.
+`scripts/notarize.sh` : build Release (horodatage sécurisé, sans get-task-allow), notarisation par la clé API App Store Connect (`ASC_KEY_PATH`, `ASC_KEY_ID`, `ASC_ISSUER_ID`, dans l'environnement ou `scripts/notarize.local.env`, ignoré par git), agrafage, contrôle Gatekeeper. `scripts/deploy-local.sh` : notarise puis installe dans `/Applications`.
 
 ## Utilisation
 

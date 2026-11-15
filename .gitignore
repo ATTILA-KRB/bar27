@@ -7,3 +7,4 @@ build/
 Bar27.xcodeproj/
 .build/
 **/.build/
+scripts/notarize.local.env
