@@ -95,7 +95,7 @@ struct LayoutView: View {
     /// y apparaît seulement après avoir créé son icône.
     private static func unconcealableHint(_ bundleID: String) -> String {
         bundleID.hasPrefix("com.apple.")
-            ? "Élément système : retirez-le dans Réglages > Centre de contrôle, ou passez en méthode de secours"
+            ? "Élément système : activez « Masquer aussi Spotlight… » ci-dessous, ou retirez-le dans Réglages > Centre de contrôle"
             : "Pas encore suivie par macOS : réessai au prochain changement"
     }
 
@@ -151,6 +151,12 @@ struct LayoutView: View {
                 Text("Automatique").tag(HidingBackend?.none)
                 Text("Interrupteur natif (accès complet au disque)").tag(HidingBackend?.some(.native))
                 Text("Méthode de secours").tag(HidingBackend?.some(.assessment))
+            }
+            if controller.backend == .native {
+                Toggle(isOn: $controller.concealSystemItems) {
+                    Text("Masquer aussi Spotlight et les éléments système")
+                    Text("Hors de portée de l'interrupteur natif : méthode de secours pour eux seuls ; les clics sur l'horloge, le Wi‑Fi et la batterie sont alors relayés.")
+                }
             }
             Toggle("Ouvrir à la connexion", isOn: $launchAtLogin)
                 .onChange(of: launchAtLogin) { _, enabled in

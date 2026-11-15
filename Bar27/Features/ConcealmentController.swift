@@ -43,6 +43,15 @@ final class ConcealmentController {
         }
     }
 
+    /// En natif, masquer aussi les éléments système hors interrupteur (Spotlight…) par l'assertion.
+    /// Prix : clics système relayés tant que l'assertion tient (l'icône de Bar27 reste, vérifié le 15/11/2026).
+    var concealSystemItems: Bool {
+        didSet {
+            UserDefaults.standard.set(concealSystemItems, forKey: Keys.concealSystemItems)
+            apply()
+        }
+    }
+
     /// Délai de re-masquage après révélation (s) ; 0 = jamais.
     var autoRehideDelay: TimeInterval {
         didSet { UserDefaults.standard.set(autoRehideDelay, forKey: Keys.autoRehide) }
@@ -76,6 +85,7 @@ final class ConcealmentController {
         static let backend = "HidingBackend"
         static let autoRehide = "AutoRehideDelay"
         static let revealOnHover = "RevealOnHover"
+        static let concealSystemItems = "ConcealSystemItems"
     }
 
     init(store: LayoutStore, selfBundleID: String) {
@@ -85,6 +95,7 @@ final class ConcealmentController {
         self.preferredBackend = UserDefaults.standard.string(forKey: Keys.backend).flatMap(HidingBackend.init(rawValue:))
         // `double(forKey:)` convertit aussi les chaînes du domaine d'arguments (`-AutoRehideDelay 3`).
         self.revealOnHover = UserDefaults.standard.object(forKey: Keys.revealOnHover) == nil ? true : UserDefaults.standard.bool(forKey: Keys.revealOnHover)
+        self.concealSystemItems = UserDefaults.standard.bool(forKey: Keys.concealSystemItems)
         self.autoRehideDelay = UserDefaults.standard.object(forKey: Keys.autoRehide) == nil ? 10 : UserDefaults.standard.double(forKey: Keys.autoRehide)
     }
 
@@ -183,6 +194,7 @@ final class ConcealmentController {
     private func applyOnce() async {
         // Pendant un relais, l'assertion est levée exprès ; bridgeClick rappelle apply().
         guard !bridging else { return }
+        let running = Set(NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier))
         switch backend {
         case .native:
             do {
@@ -190,22 +202,31 @@ final class ConcealmentController {
                 let wanted = Set(layout.sections.filter { Self.isConcealed($0.value, in: state) }.keys)
                     .subtracting([selfBundleID, menuBarAgentBundleID])
                 let untracked = try NativeAllowListBackend.apply(concealed: wanted)
-                let running = Set(NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier))
-                unconcealable = untracked.intersection(running).sorted()
-                concealed = wanted.subtracting(untracked).sorted()
+                lastError = nil
+                let residue = untracked.intersection(running)
+                // Éléments système (Spotlight…) hors interrupteur : assertion pour eux seuls, si demandé.
+                var assisted = Set<String>()
+                if concealSystemItems, !residue.isEmpty {
+                    let residueLayout = Layout(sections: Dictionary(uniqueKeysWithValues: residue.map { ($0, Section.hidden) }))
+                    let plan = ConcealmentPlanner.plan(layout: residueLayout, state: .collapsed, runningBundleIDs: running, selfBundleID: selfBundleID)
+                    if await applyAssertion(plan) { assisted = residue }
+                } else {
+                    _ = await applyAssertion(nil)
+                }
+                unconcealable = residue.subtracting(assisted).sorted()
+                concealed = wanted.subtracting(untracked).union(assisted).sorted()
                 if !unconcealable.isEmpty {
                     logger.notice("Non masquables en natif : \(self.unconcealable.joined(separator: " "), privacy: .public)")
                 }
-                lastError = nil
             } catch {
                 lastError = String(describing: error)
                 logger.error("Natif en échec, repli sur l'assertion : \(String(describing: error), privacy: .public)")
                 nativeWriteFailed = true
                 backend = .assessment
-                await applyAssertion()
+                await applyFullAssertion(running: running)
             }
         case .assessment:
-            await applyAssertion()
+            await applyFullAssertion(running: running)
         }
     }
 
@@ -217,35 +238,41 @@ final class ConcealmentController {
         }
     }
 
-    private func applyAssertion() async {
-        let running = Set(NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier))
+    /// Méthode de secours seule : l'assertion porte tout le layout.
+    private func applyFullAssertion(running: Set<String>) async {
         let plan = ConcealmentPlanner.plan(layout: layout, state: state, runningBundleIDs: running, selfBundleID: selfBundleID)
-        guard plan?.allowedBundleIDs != token?.allowedBundleIDs else { return }
+        guard await applyAssertion(plan) else { return }
+        lastError = nil
+        concealed = plan?.concealedBundleIDs ?? []
+        unconcealable = []
+        logger.info("Plan appliqué : \(self.concealed.joined(separator: ", "), privacy: .public)")
+    }
+
+    /// Pose (ou lève, `nil`) l'assertion. Rend `false` si elle n'a pas pu être posée.
+    private func applyAssertion(_ plan: ConcealmentPlan?) async -> Bool {
+        guard plan?.allowedBundleIDs != token?.allowedBundleIDs else { return true }
         let previous = token
         if let plan {
             guard AssessmentBackend.isAvailable else {
                 lastError = "Masquage indisponible (MenuBarClientCore absent)"
-                return
+                return false
             }
             do {
                 // Nouvelle assertion active AVANT de relâcher l'ancienne : pas de clignotement.
                 token = try await AssessmentBackend.activate(allowedBundleIDs: plan.allowedBundleIDs)
-                lastError = nil
             } catch {
                 lastError = String(describing: error)
-                return
+                return false
             }
         } else {
             token = nil
         }
         if let previous { AssessmentBackend.invalidate(previous) }
-        concealed = plan?.concealedBundleIDs ?? []
-        unconcealable = []
         let active = token != nil
         clickBridge.state.withLock { $0.assertionActive = active }
-        logger.info("Plan appliqué : \(self.concealed.joined(separator: ", "), privacy: .public)")
         // Les items système bougent quand des apps disparaissent.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in self?.refreshSystemFrames() }
+        return true
     }
 
     private func releaseEverything() {
