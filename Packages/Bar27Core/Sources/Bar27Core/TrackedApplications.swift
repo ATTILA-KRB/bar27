@@ -38,6 +38,15 @@ public enum TrackedApplications {
         return states
     }
 
+    /// Clé sous laquelle MenuBarAgent suit l'app qui possède l'icône : elle-même, sinon la première app
+    /// qui la contient (`containers`, du plus proche au plus lointain). Un assistant
+    /// (`Gemini.app/Contents/Helpers/GeminiAppLauncher.app`) porte l'icône, mais l'interrupteur
+    /// est rangé sous l'app principale. `nil` : app non suivie (élément système, icône jamais créée).
+    public static func trackedKey(for bundleID: String, states: [String: Bool], containers: [String]) -> String? {
+        if states[bundleID] != nil { return bundleID }
+        return containers.first { states[$0] != nil }
+    }
+
     public static func settingAllowed(_ allowed: Bool, for bundleIDs: Set<String>, in array: [Any]) -> (array: [Any], changed: Set<String>) {
         guard !bundleIDs.isEmpty else { return (array, []) }
         var result = array

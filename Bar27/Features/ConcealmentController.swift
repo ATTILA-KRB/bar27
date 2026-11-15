@@ -20,6 +20,9 @@ final class ConcealmentController {
     private(set) var layout: Layout
     private(set) var lastScan: ItemProvider.Scan?
     private(set) var concealed: [String] = []
+    /// Apps à masquer, lancées, que l'interrupteur natif ne peut pas éteindre (éléments système
+    /// comme Spotlight, ou icône pas encore suivie par MenuBarAgent) : elles restent visibles.
+    private(set) var unconcealable: [String] = []
     private(set) var lastError: String?
     private(set) var backend: HidingBackend = .assessment
     private(set) var bridgedClicks = 0
@@ -186,8 +189,13 @@ final class ConcealmentController {
                 // En natif l'interrupteur est persistant : on éteint aussi les apps non lancées.
                 let wanted = Set(layout.sections.filter { Self.isConcealed($0.value, in: state) }.keys)
                     .subtracting([selfBundleID, menuBarAgentBundleID])
-                try NativeAllowListBackend.apply(concealed: wanted)
-                concealed = wanted.sorted()
+                let untracked = try NativeAllowListBackend.apply(concealed: wanted)
+                let running = Set(NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier))
+                unconcealable = untracked.intersection(running).sorted()
+                concealed = wanted.subtracting(untracked).sorted()
+                if !unconcealable.isEmpty {
+                    logger.notice("Non masquables en natif : \(self.unconcealable.joined(separator: " "), privacy: .public)")
+                }
                 lastError = nil
             } catch {
                 lastError = String(describing: error)
@@ -232,6 +240,7 @@ final class ConcealmentController {
         }
         if let previous { AssessmentBackend.invalidate(previous) }
         concealed = plan?.concealedBundleIDs ?? []
+        unconcealable = []
         let active = token != nil
         clickBridge.state.withLock { $0.assertionActive = active }
         logger.info("Plan appliqué : \(self.concealed.joined(separator: ", "), privacy: .public)")
@@ -245,6 +254,7 @@ final class ConcealmentController {
         clickBridge.state.withLock { $0.assertionActive = false }
         if NativeAllowListBackend.isAvailable { NativeAllowListBackend.releaseAll() }
         concealed = []
+        unconcealable = []
     }
 
     private func resolvedBackend() -> HidingBackend {

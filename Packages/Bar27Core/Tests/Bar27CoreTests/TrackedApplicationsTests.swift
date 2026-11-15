@@ -27,6 +27,13 @@ nonisolated(unsafe) private let sample: [Any] = [key("a"), value("a", true), adh
     #expect(TrackedApplications.allowedStates(in: back) == TrackedApplications.allowedStates(in: sample))
 }
 
+@Test func resolvesHelperToContainingTrackedApp() {
+    let states = ["com.google.GeminiMacOS": true, "a": false]
+    #expect(TrackedApplications.trackedKey(for: "a", states: states, containers: ["com.google.GeminiMacOS"]) == "a", "suivie elle-même")
+    #expect(TrackedApplications.trackedKey(for: "com.google.GeminiMacOS.launcher", states: states, containers: ["com.google.GeminiMacOS"]) == "com.google.GeminiMacOS")
+    #expect(TrackedApplications.trackedKey(for: "com.apple.campo", states: states, containers: []) == nil, "élément système non suivi")
+}
+
 @Test func planNeverTouchesUserChoices() {
     // b a été éteint par l'utilisateur (non enregistré) : jamais rallumé.
     let plan = NativeTogglePlan.make(concealed: ["a", "new"], states: ["a": true, "b": false, "c": false], recorded: ["c"])

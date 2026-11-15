@@ -91,6 +91,14 @@ struct LayoutView: View {
 
     // MARK: Apps
 
+    /// Les éléments système (Spotlight…) ne figurent pas dans l'interrupteur natif ; une app tierce
+    /// y apparaît seulement après avoir créé son icône.
+    private static func unconcealableHint(_ bundleID: String) -> String {
+        bundleID.hasPrefix("com.apple.")
+            ? "Élément système : retirez-le dans Réglages > Centre de contrôle, ou passez en méthode de secours"
+            : "Pas encore suivie par macOS : réessai au prochain changement"
+    }
+
     private var table: some View {
         Table(rows) {
             TableColumn("App") { row in
@@ -103,6 +111,11 @@ struct LayoutView: View {
                         Text(row.isRunning ? row.bundleID : "\(row.bundleID) · non lancée")
                             .font(.caption)
                             .foregroundStyle(.secondary)
+                        if controller.unconcealable.contains(row.bundleID) {
+                            Label(Self.unconcealableHint(row.bundleID), systemImage: "exclamationmark.triangle.fill")
+                                .font(.caption)
+                                .foregroundStyle(.orange)
+                        }
                     }
                 }
                 .opacity(row.isRunning ? 1 : 0.6)
@@ -163,6 +176,10 @@ struct LayoutView: View {
                 }
                 Text("Méthode : " + (controller.backend == .native ? "interrupteur natif" : "méthode de secours (clics système relayés : \(controller.bridgedClicks))"))
                 Text("Masquées : " + (controller.concealed.isEmpty ? "aucune" : controller.concealed.map(AppInfo.displayName(for:)).joined(separator: ", ")))
+                if !controller.unconcealable.isEmpty {
+                    Text("Restent visibles (hors de portée de l'interrupteur natif) : " + controller.unconcealable.map(AppInfo.displayName(for:)).joined(separator: ", "))
+                        .foregroundStyle(.orange)
+                }
                 if let error = controller.lastError { Text(error).foregroundStyle(.red) }
             }
             .font(.caption)

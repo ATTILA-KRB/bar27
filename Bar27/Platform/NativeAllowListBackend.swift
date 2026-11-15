@@ -6,8 +6,8 @@
 //  « avec conteneur » (privés) : un `defaults write` ne réveille pas MenuBarAgent.
 //  Avantage sur l'assertion : les items système gardent leurs clics, rien à rejouer.
 
+import AppKit
 import Bar27Core
-import Foundation
 import OSLog
 
 @MainActor
@@ -48,12 +48,23 @@ enum NativeAllowListBackend {
         TrackedApplications.allowedStates(in: try read())
     }
 
-    /// Éteint `concealed`, rallume ce que Bar27 avait éteint et qui ne doit plus l'être.
-    /// Rend les apps non encore suivies par MenuBarAgent.
+    /// Éteint `concealed` (bundleID du propriétaire de l'icône, tel que rangé dans le layout),
+    /// rallume ce que Bar27 avait éteint et qui ne doit plus l'être.
+    /// Rend les apps que MenuBarAgent ne suit pas (élément système, icône pas encore créée).
     @discardableResult
     static func apply(concealed: Set<String>) throws -> Set<String> {
         var array = try read()
-        let plan = NativeTogglePlan.make(concealed: concealed, states: TrackedApplications.allowedStates(in: array), recorded: recorded)
+        let states = TrackedApplications.allowedStates(in: array)
+        var keys = Set<String>(), untracked = Set<String>()
+        for id in concealed {
+            if let key = TrackedApplications.trackedKey(for: id, states: states, containers: containingBundleIDs(of: id)) {
+                keys.insert(key)
+            } else {
+                untracked.insert(id)
+            }
+        }
+        let concealed = keys
+        let plan = NativeTogglePlan.make(concealed: concealed, states: states, recorded: recorded)
         // Enregistré AVANT l'écriture : un plantage entre les deux laisse de quoi tout rallumer.
         recorded = recorded.union(plan.toDisallow)
         let off = TrackedApplications.settingAllowed(false, for: plan.toDisallow, in: array)
@@ -66,7 +77,20 @@ enum NativeAllowListBackend {
         }
         let final = TrackedApplications.allowedStates(in: array)
         recorded = recorded.intersection(concealed).filter { final[$0] == false }
-        return plan.untracked
+        return untracked
+    }
+
+    /// Bundle IDs des apps qui contiennent `bundleID` (`…/Main.app/Contents/Helpers/Helper.app`),
+    /// de la plus proche à la plus lointaine. Marche aussi pour une app non lancée.
+    static func containingBundleIDs(of bundleID: String) -> [String] {
+        let running = NSRunningApplication.runningApplications(withBundleIdentifier: bundleID).first?.bundleURL
+        guard var url = running ?? NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) else { return [] }
+        var result = [String]()
+        while url.pathComponents.count > 1 {
+            url.deleteLastPathComponent()
+            if url.pathExtension == "app", let id = Bundle(url: url)?.bundleIdentifier { result.append(id) }
+        }
+        return result
     }
 
     /// Rallume tout ce que Bar27 a éteint (lancement, fin, « Tout afficher »).
