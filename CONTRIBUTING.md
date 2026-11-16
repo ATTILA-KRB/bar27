@@ -30,4 +30,4 @@ You need macOS 27, Xcode with the macOS 27 SDK and a Developer ID certificate
 
 ## Localisation
 
-The interface follows the system language (French and English). Strings live in `Bar27/Resources/Localizable.xcstrings`; the **source language is French**, so the French text is the key. SwiftUI literals (`Text("…")`) are localised automatically; elsewhere use `String(localized: "…")`. Add the English translation to the catalog for every new string.
+The interface follows the system language (French and English). Strings live in `Bar27/Resources/Localizable.xcstrings`; the **source language is French**, so the French text is the key. SwiftUI literals (`Text("…")`) are localised automatically; elsewhere use `String(localized: "…")`. Add the English translation to the catalog for every new string. `scripts/check-localization.py` (run by `scripts/test.sh`) fails on a missing fr/en translation, a mismatched format specifier, or a literal string in the code that is not in the catalog.
