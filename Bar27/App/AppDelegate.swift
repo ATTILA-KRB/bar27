@@ -25,17 +25,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // `-LayoutPath <fichier>` : layout de test (scripts/verify-*.sh), sans toucher au vrai.
         let store = UserDefaults.standard.string(forKey: "LayoutPath").map { LayoutStore(url: URL(fileURLWithPath: $0)) }
             ?? .applicationSupport(bundleID: bundleID)
-        controller = ConcealmentController(store: store, selfBundleID: bundleID)
+        let demo = DemoMode.isEnabled(arguments: CommandLine.arguments, environment: ProcessInfo.processInfo.environment)
+        controller = ConcealmentController(store: store, selfBundleID: bundleID, demo: demo)
         statusItem = StatusItemController(controller: controller) { [weak self] in self?.showLayout() }
         controller.onStateChange = { [weak self] in self?.statusItem?.updateIcon() }
         hotKey = HotKey { [weak self] in self?.controller.toggle() }
-        if !Permissions.accessibility { Permissions.requestAccessibility() }
+        if !demo, !Permissions.accessibility { Permissions.requestAccessibility() }
         installTerminationSignals()
         controller.start()
         // Premier lancement (rien n'est rangé, l'icône peut finir derrière l'encoche) ou test : on ouvre la fenêtre.
         let defaults = UserDefaults.standard
-        if !defaults.bool(forKey: "Onboarded") || defaults.bool(forKey: "OpenLayout") {
-            defaults.set(true, forKey: "Onboarded")
+        if demo || !defaults.bool(forKey: "Onboarded") || defaults.bool(forKey: "OpenLayout") {
+            if !demo { defaults.set(true, forKey: "Onboarded") }
             showLayout()
         }
     }
