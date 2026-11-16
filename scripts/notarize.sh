@@ -1,6 +1,6 @@
 #!/bin/bash
 # Build Release, notarisation Apple (clé API App Store Connect), agrafage, puis contrôle Gatekeeper.
-# Variables : ASC_KEY_PATH (.p8), ASC_KEY_ID, ASC_ISSUER_ID. Sortie : build/Bar27.app agrafée + build/Bar27-<version>.zip
+# Variables : ASC_KEY_PATH (.p8), ASC_KEY_ID, ASC_ISSUER_ID. Sortie : build/Bar27.app agrafée + build/Bar27-<version>.zip + build/Bar27-<version>.dmg
 set -euo pipefail
 cd "$(dirname "$0")/.."
 # Valeurs locales hors dépôt : scripts/notarize.local.env (ignoré par git).
@@ -25,3 +25,4 @@ xcrun stapler validate "$APP"
 rm -f "$ZIP"; ditto -c -k --keepParent "$APP" "$ZIP"   # zip de distribution, app agrafée
 spctl --assess --type execute -vv "$APP"
 echo "Notarisée : $APP ($ZIP)"
+scripts/make-dmg.sh   # DMG de distribution (notarisé, agrafé)
