@@ -4,6 +4,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-16
+
 ### Added
 - English interface: the app now follows the system language (English or French), via a String Catalog (French source language). `scripts/check-localization.py` checks the catalog and runs in `scripts/test.sh`.
 - Status menu now reports when "Open at Login" fails or needs approval in System Settings (it used to fail silently).
