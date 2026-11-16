@@ -32,7 +32,7 @@ system's own ordering.
 - **Native hiding first**: uses the system's own per-app switch when Full Disk Access is granted, and falls back to the "assessment mode" assertion otherwise.
 - Open source, no telemetry.
 
-<!-- Screenshots: add docs/screenshot-*.png and reference them here. -->
+![The "Arrange the bar" window, shown with demo data (the interface is currently French only)](docs/screenshots/arrange-window.png)
 
 ## Installation
 
