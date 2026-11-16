@@ -28,7 +28,7 @@ final class StatusItemController: NSObject {
         let collapsed = controller.state == .collapsed
         let symbol = collapsed ? "menubar.arrow.down.rectangle" : "menubar.arrow.up.rectangle"
         statusItem.button?.image = NSImage(systemSymbolName: symbol, accessibilityDescription: "Bar27")
-        statusItem.button?.toolTip = collapsed ? "Bar27 — afficher les icônes masquées (⌃⌥⌘B)" : "Bar27 — masquer (⌃⌥⌘B)"
+        statusItem.button?.toolTip = collapsed ? String(localized: "Bar27 — afficher les icônes masquées (⌃⌥⌘B)") : String(localized: "Bar27 — masquer (⌃⌥⌘B)")
     }
 
     @objc private func clicked() {
@@ -43,19 +43,19 @@ final class StatusItemController: NSObject {
 
     private func showMenu() {
         let menu = NSMenu()
-        let toggleTitle = controller.state == .collapsed ? "Afficher les éléments masqués" : "Masquer les éléments"
+        let toggleTitle = controller.state == .collapsed ? String(localized: "Afficher les éléments masqués") : String(localized: "Masquer les éléments")
         menu.addItem(withTitle: toggleTitle, action: #selector(toggleFromMenu), keyEquivalent: "").target = self
-        menu.addItem(withTitle: "Tout afficher", action: #selector(revealAll), keyEquivalent: "").target = self
+        menu.addItem(withTitle: String(localized: "Tout afficher"), action: #selector(revealAll), keyEquivalent: "").target = self
         menu.addItem(.separator())
-        let login = menu.addItem(withTitle: "Ouvrir à la connexion", action: #selector(toggleLogin), keyEquivalent: "")
+        let login = menu.addItem(withTitle: String(localized: "Ouvrir à la connexion"), action: #selector(toggleLogin), keyEquivalent: "")
         login.target = self
         login.state = LoginItem.isEnabled ? .on : .off
-        menu.addItem(withTitle: "Organiser la barre…", action: #selector(diagnostic), keyEquivalent: ",").target = self
+        menu.addItem(withTitle: String(localized: "Organiser la barre…"), action: #selector(diagnostic), keyEquivalent: ",").target = self
         if !Permissions.accessibility {
-            menu.addItem(withTitle: "Autoriser l'accessibilité…", action: #selector(requestAX), keyEquivalent: "").target = self
+            menu.addItem(withTitle: String(localized: "Autoriser l'accessibilité…"), action: #selector(requestAX), keyEquivalent: "").target = self
         }
         menu.addItem(.separator())
-        menu.addItem(withTitle: "Quitter Bar27", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        menu.addItem(withTitle: String(localized: "Quitter Bar27"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         statusItem.menu = menu
         statusItem.button?.performClick(nil)
         statusItem.menu = nil
