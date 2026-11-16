@@ -38,8 +38,8 @@ targets:
       path: Bar27/Info.plist
       properties:
         CFBundleDisplayName: Bar27
-        CFBundleShortVersionString: "0.1.0"
-        CFBundleVersion: "1"
+        CFBundleShortVersionString: "0.2.0"
+        CFBundleVersion: "2"
         LSUIElement: true
         CFBundleLocalizations: [fr, en]
         LSMinimumSystemVersion: "27.0"
