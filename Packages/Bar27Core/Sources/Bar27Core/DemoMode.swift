@@ -47,4 +47,16 @@ public enum DemoMode {
     public static func symbol(for bundleID: String) -> String? {
         apps.first { $0.bundleID == bundleID }?.symbol
     }
+
+    public static func name(for bundleID: String) -> String? {
+        apps.first { $0.bundleID == bundleID }?.name
+    }
+
+    /// Apps que le plan de masquage cache quand la barre est repliée : en démo rien n'est
+    /// réellement masqué, mais le pied de fenêtre doit refléter les sections affichées.
+    public static func concealedBundleIDs(layout: Layout) -> [String] {
+        ConcealmentPlanner.plan(
+            layout: layout, state: .collapsed, runningBundleIDs: Set(apps.map(\.bundleID)), selfBundleID: ""
+        )?.concealedBundleIDs ?? []
+    }
 }

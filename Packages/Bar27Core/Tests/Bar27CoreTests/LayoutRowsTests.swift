@@ -45,3 +45,11 @@ import Testing
     #expect(rows.first { $0.name == "Musique" }?.itemCount == 2)
     #expect(rows.first { $0.name == "Notes" }?.section == .alwaysHidden)
 }
+
+@Test func demoFooterListsConcealedApps() {
+    // Défaut corrigé : le pied affichait « aucune » alors que des apps sont en « Masqué ».
+    let ids = DemoMode.concealedBundleIDs(layout: DemoMode.layout)
+    let names = ids.compactMap(DemoMode.name(for:))
+    #expect(Set(names) == ["Calendrier", "Musique", "Notes", "Météo"])
+    #expect(DemoMode.concealedBundleIDs(layout: Layout()).isEmpty)
+}
