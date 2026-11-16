@@ -246,6 +246,23 @@
         }
       }
     },
+    "Annuler": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annuler"
+          }
+        }
+      }
+    },
     "App": {
       "extractionState": "manual",
       "localizations": {
@@ -297,6 +314,23 @@
         }
       }
     },
+    "Autorisation requise": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approval required"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autorisation requise"
+          }
+        }
+      }
+    },
     "Autoriser l'accessibilité…": {
       "extractionState": "manual",
       "localizations": {
@@ -327,6 +361,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Autoriser…"
+          }
+        }
+      }
+    },
+    "Autorisez Bar27 dans Réglages Système > Général > Ouverture et extensions pour qu'il s'ouvre à la connexion.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow Bar27 in System Settings > General > Login Items & Extensions so it opens at login."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autorisez Bar27 dans Réglages Système > Général > Ouverture et extensions pour qu'il s'ouvre à la connexion."
+          }
+        }
+      }
+    },
+    "Bar27 n'a pas pu modifier l'ouverture à la connexion : %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bar27 couldn't change the open-at-login setting: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bar27 n'a pas pu modifier l'ouverture à la connexion : %@"
           }
         }
       }
@@ -769,6 +837,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Organiser la barre…"
+          }
+        }
+      }
+    },
+    "Ouverture à la connexion impossible": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Can't open at login"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouverture à la connexion impossible"
           }
         }
       }
