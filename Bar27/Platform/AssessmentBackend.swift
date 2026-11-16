@@ -28,9 +28,9 @@ enum AssessmentBackend {
 
         var description: String {
             switch self {
-            case .unavailable: "MenuBarClientCore indisponible"
-            case .rejected(let reason): "MenuBarAgent a refusé l'assertion : \(reason)"
-            case .timedOut: "MenuBarAgent n'a pas répondu en 3 s"
+            case .unavailable: String(localized: "MenuBarClientCore indisponible")
+            case .rejected(let reason): String(localized: "MenuBarAgent a refusé l'assertion : \(reason)")
+            case .timedOut: String(localized: "MenuBarAgent n'a pas répondu en 3 s")
             }
         }
     }
