@@ -29,6 +29,11 @@ struct LayoutView: View {
         )
     }
 
+    /// En démo rien n'est réellement masqué : on affiche ce que le layout masquerait.
+    private var concealedIDs: [String] {
+        controller.isDemo ? DemoMode.concealedBundleIDs(layout: controller.layout) : controller.concealed
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             permissions
@@ -189,7 +194,7 @@ struct LayoutView: View {
                     Text("\(scan.items.count) icônes · lecture \(Int(scan.duration * 1000)) ms" + (scan.unresponsive.isEmpty ? "" : " · lentes : \(scan.unresponsive.joined(separator: ", "))"))
                 }
                 Text("Méthode : " + (controller.backend == .native ? "interrupteur natif" : "méthode de secours (clics système relayés : \(controller.bridgedClicks))"))
-                Text("Masquées : " + (controller.concealed.isEmpty ? "aucune" : controller.concealed.map(AppInfo.displayName(for:)).joined(separator: ", ")))
+                Text("Masquées : " + (concealedIDs.isEmpty ? "aucune" : concealedIDs.map(AppInfo.displayName(for:)).joined(separator: ", ")))
                 if !controller.unconcealable.isEmpty {
                     Text("Restent visibles (hors de portée de l'interrupteur natif) : " + controller.unconcealable.map(AppInfo.displayName(for:)).joined(separator: ", "))
                         .foregroundStyle(.orange)
@@ -218,7 +223,7 @@ enum AppInfo {
         return FileManager.default.displayName(atPath: url.path).replacingOccurrences(of: ".app", with: "")
     }
 
-    static func displayName(for bundleID: String) -> String { name(for: bundleID) ?? bundleID }
+    static func displayName(for bundleID: String) -> String { DemoMode.name(for: bundleID) ?? name(for: bundleID) ?? bundleID }
 
     @MainActor static func icon(for bundleID: String) -> NSImage {
         if let symbol = DemoMode.symbol(for: bundleID), let image = NSImage(systemSymbolName: symbol, accessibilityDescription: nil) { return image }
