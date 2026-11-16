@@ -15,7 +15,7 @@ struct LayoutView: View {
     private var rows: [LayoutRow] {
         if controller.isDemo {
             return LayoutRows.make(
-                scanned: DemoMode.items.map { ($0.bundleID, $0.appName) }, layout: controller.layout,
+                scanned: DemoMode.items.map { ($0.bundleID, $0.appName.map(AppInfo.demoName)) }, layout: controller.layout,
                 running: Set(DemoMode.apps.map(\.bundleID)), selfBundleID: "", displayName: { _ in nil }
             )
         }
@@ -106,8 +106,8 @@ struct LayoutView: View {
     /// y apparaît seulement après avoir créé son icône.
     private static func unconcealableHint(_ bundleID: String) -> String {
         bundleID.hasPrefix("com.apple.")
-            ? "Élément système : activez « Masquer aussi Spotlight… » ci-dessous, ou retirez-le dans Réglages > Centre de contrôle"
-            : "Pas encore suivie par macOS : réessai au prochain changement"
+            ? String(localized: "Élément système : activez « Masquer aussi Spotlight… » ci-dessous, ou retirez-le dans Réglages > Centre de contrôle")
+            : String(localized: "Pas encore suivie par macOS : réessai au prochain changement")
     }
 
     private var table: some View {
@@ -119,7 +119,7 @@ struct LayoutView: View {
                         .frame(width: 20, height: 20)
                     VStack(alignment: .leading) {
                         Text(row.name)
-                        Text(row.isRunning ? row.bundleID : "\(row.bundleID) · non lancée")
+                        Text(row.isRunning ? row.bundleID : String(localized: "\(row.bundleID) · non lancée"))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                         if controller.unconcealable.contains(row.bundleID) {
@@ -223,7 +223,10 @@ enum AppInfo {
         return FileManager.default.displayName(atPath: url.path).replacingOccurrences(of: ".app", with: "")
     }
 
-    static func displayName(for bundleID: String) -> String { DemoMode.name(for: bundleID) ?? name(for: bundleID) ?? bundleID }
+    static func displayName(for bundleID: String) -> String { DemoMode.name(for: bundleID).map(demoName) ?? name(for: bundleID) ?? bundleID }
+
+    /// Noms fictifs du mode démo : la clé du catalogue est le nom français.
+    static func demoName(_ name: String) -> String { String(localized: String.LocalizationValue(name)) }
 
     @MainActor static func icon(for bundleID: String) -> NSImage {
         if let symbol = DemoMode.symbol(for: bundleID), let image = NSImage(systemSymbolName: symbol, accessibilityDescription: nil) { return image }
