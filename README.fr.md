@@ -11,6 +11,8 @@ dont vous n'avez pas besoin et les réaffiche d'un clic.
 - Clic droit : menu (Tout afficher, Organiser la barre…, Quitter).
 - « Organiser la barre » : choisir pour chaque app Visible, Masqué ou Toujours masqué.
 
+![Fenêtre « Organiser la barre des menus », avec des données de démonstration](docs/screenshots/arrange-window.png)
+
 macOS 27 masque **par application** et range lui-même les icônes ; Bar27 ne réordonne pas.
 
 ## Développement
