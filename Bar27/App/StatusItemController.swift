@@ -49,7 +49,7 @@ final class StatusItemController: NSObject {
         menu.addItem(.separator())
         let login = menu.addItem(withTitle: String(localized: "Ouvrir à la connexion"), action: #selector(toggleLogin), keyEquivalent: "")
         login.target = self
-        login.state = LoginItem.isEnabled ? .on : .off
+        login.state = LoginItem.isEnabled ? .on : (LoginItem.needsApproval ? .mixed : .off)
         menu.addItem(withTitle: String(localized: "Organiser la barre…"), action: #selector(diagnostic), keyEquivalent: ",").target = self
         if !Permissions.accessibility {
             menu.addItem(withTitle: String(localized: "Autoriser l'accessibilité…"), action: #selector(requestAX), keyEquivalent: "").target = self
@@ -64,6 +64,6 @@ final class StatusItemController: NSObject {
     @objc private func toggleFromMenu() { controller.toggle(); updateIcon() }
     @objc private func revealAll() { controller.set(.revealedAll); updateIcon() }
     @objc private func diagnostic() { openDiagnostic() }
-    @objc private func toggleLogin() { try? LoginItem.set(!LoginItem.isEnabled) }
+    @objc private func toggleLogin() { LoginItem.toggleReportingProblems() }
     @objc private func requestAX() { Permissions.requestAccessibility() }
 }
