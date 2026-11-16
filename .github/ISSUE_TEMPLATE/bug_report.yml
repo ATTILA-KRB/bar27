@@ -1,0 +1,35 @@
+name: Bug report
+description: Something does not work as expected
+labels: [bug]
+body:
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version (including build)
+      placeholder: "27.0 (25A...)"
+    validations: {required: true}
+  - type: input
+    id: bar27
+    attributes:
+      label: Bar27 version or commit
+    validations: {required: true}
+  - type: dropdown
+    id: fda
+    attributes:
+      label: Full Disk Access granted to Bar27?
+      options: ["Yes", "No", "Not sure"]
+    validations: {required: true}
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+    validations: {required: true}
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual behaviour
+    validations: {required: true}
+  - type: textarea
+    id: extra
+    attributes:
+      label: Screenshots, affected app bundle IDs, logs
