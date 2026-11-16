@@ -1,6 +1,57 @@
 {
   "sourceLanguage": "fr",
   "strings": {
+    " · lentes : %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " · slow: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " · lentes : %@"
+          }
+        }
+      }
+    },
+    "%@ · lecture %lld ms": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · read in %lld ms"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · lecture %lld ms"
+          }
+        }
+      }
+    },
+    "%@ · mode démo (données fictives)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · demo mode (fictitious data)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · mode démo (données fictives)"
+          }
+        }
+      }
+    },
     "%@ · non lancée": {
       "extractionState": "manual",
       "localizations": {
@@ -14,6 +65,47 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ · non lancée"
+          }
+        }
+      }
+    },
+    "%lld icônes": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld icon"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld icons"
+                }
+              }
+            }
+          }
+        },
+        "fr": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld icône"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld icônes"
+                }
+              }
+            }
           }
         }
       }
@@ -103,6 +195,23 @@
         }
       }
     },
+    "Actualiser": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actualiser"
+          }
+        }
+      }
+    },
     "Afficher au survol d'une zone vide de la barre": {
       "extractionState": "manual",
       "localizations": {
@@ -150,6 +259,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "App"
+          }
+        }
+      }
+    },
+    "Appels CoreFoundation avec conteneur indisponibles": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CoreFoundation container calls unavailable"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appels CoreFoundation avec conteneur indisponibles"
           }
         }
       }
@@ -375,6 +501,23 @@
         }
       }
     },
+    "Masquage indisponible (MenuBarClientCore absent)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hiding unavailable (MenuBarClientCore missing)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masquage indisponible (MenuBarClientCore absent)"
+          }
+        }
+      }
+    },
     "Masquer aussi Spotlight et les éléments système": {
       "extractionState": "manual",
       "localizations": {
@@ -426,6 +569,74 @@
         }
       }
     },
+    "Masquées : %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hidden: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masquées : %@"
+          }
+        }
+      }
+    },
+    "MenuBarAgent a refusé l'assertion : %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MenuBarAgent rejected the assertion: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MenuBarAgent a refusé l'assertion : %@"
+          }
+        }
+      }
+    },
+    "MenuBarAgent n'a pas répondu en 3 s": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MenuBarAgent did not respond within 3 s"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MenuBarAgent n'a pas répondu en 3 s"
+          }
+        }
+      }
+    },
+    "MenuBarClientCore indisponible": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MenuBarClientCore unavailable"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MenuBarClientCore indisponible"
+          }
+        }
+      }
+    },
     "Musique": {
       "extractionState": "manual",
       "localizations": {
@@ -439,6 +650,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Musique"
+          }
+        }
+      }
+    },
+    "Méthode : %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Method: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Méthode : %@"
           }
         }
       }
@@ -630,6 +858,40 @@
         }
       }
     },
+    "Préférence trackedApplications illisible (accès au conteneur Centre de contrôle refusé ?)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "trackedApplications preference unreadable (Control Center container access denied?)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Préférence trackedApplications illisible (accès au conteneur Centre de contrôle refusé ?)"
+          }
+        }
+      }
+    },
+    "Préférence trackedApplications non synchronisée": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "trackedApplications preference not synchronized"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Préférence trackedApplications non synchronisée"
+          }
+        }
+      }
+    },
     "Quitter Bar27": {
       "extractionState": "manual",
       "localizations": {
@@ -677,6 +939,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Re-masquer après"
+          }
+        }
+      }
+    },
+    "Restent visibles (hors de portée de l'interrupteur natif) : %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Still visible (out of reach of the native switch): %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restent visibles (hors de portée de l'interrupteur natif) : %@"
+          }
+        }
+      }
+    },
+    "Sauvegarde du layout : %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not save the layout: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sauvegarde du layout : %@"
           }
         }
       }
@@ -813,6 +1109,57 @@
           "stringUnit": {
             "state": "translated",
             "value": "Wi‑Fi"
+          }
+        }
+      }
+    },
+    "aucune": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "none"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "aucune"
+          }
+        }
+      }
+    },
+    "interrupteur natif": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "native switch"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "interrupteur natif"
+          }
+        }
+      }
+    },
+    "méthode de secours (clics système relayés : %lld)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "fallback method (system clicks relayed: %lld)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "méthode de secours (clics système relayés : %lld)"
           }
         }
       }

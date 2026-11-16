@@ -168,7 +168,7 @@ final class ConcealmentController {
     func assign(_ bundleID: String, to section: Section) {
         layout.assign(bundleID, to: section)
         if isDemo { return }
-        do { try store.save(layout) } catch { lastError = "Sauvegarde du layout : \(error.localizedDescription)" }
+        do { try store.save(layout) } catch { lastError = String(localized: "Sauvegarde du layout : \(error.localizedDescription)") }
         apply()
     }
 
@@ -262,7 +262,7 @@ final class ConcealmentController {
         let previous = token
         if let plan {
             guard AssessmentBackend.isAvailable else {
-                lastError = "Masquage indisponible (MenuBarClientCore absent)"
+                lastError = String(localized: "Masquage indisponible (MenuBarClientCore absent)")
                 return false
             }
             do {
@@ -303,7 +303,7 @@ final class ConcealmentController {
     func resetLayout() {
         layout = isDemo ? DemoMode.layout : Layout()
         if isDemo { return }
-        do { try store.save(layout) } catch { lastError = "Sauvegarde du layout : \(error.localizedDescription)" }
+        do { try store.save(layout) } catch { lastError = String(localized: "Sauvegarde du layout : \(error.localizedDescription)") }
         apply()
     }
 
