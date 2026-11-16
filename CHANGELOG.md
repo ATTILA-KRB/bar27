@@ -7,7 +7,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Added
 - English README, French README (`README.fr.md`), issue forms, PR template, contributing guide.
 
-## [0.1.0] - Unreleased
+## [0.1.0] - 2026-11-16
 
 ### Added
 - Menu bar manager for macOS 27: per-app *Visible*, *Hidden* and *Always hidden* states.
