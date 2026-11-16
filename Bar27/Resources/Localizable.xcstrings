@@ -18,6 +18,108 @@
         }
       }
     },
+    "10 s": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "10 s"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "10 s"
+          }
+        }
+      }
+    },
+    "30 s": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 s"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 s"
+          }
+        }
+      }
+    },
+    "5 s": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5 s"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5 s"
+          }
+        }
+      }
+    },
+    "Accessibilité (obligatoire)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accessibility (required)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accessibilité (obligatoire)"
+          }
+        }
+      }
+    },
+    "Accès complet au disque (recommandé)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full Disk Access (recommended)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accès complet au disque (recommandé)"
+          }
+        }
+      }
+    },
+    "Afficher au survol d'une zone vide de la barre": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show when hovering an empty area of the menu bar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher au survol d'une zone vide de la barre"
+          }
+        }
+      }
+    },
     "Afficher les éléments masqués": {
       "extractionState": "manual",
       "localizations": {
@@ -52,6 +154,23 @@
         }
       }
     },
+    "Automatique": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatique"
+          }
+        }
+      }
+    },
     "Autoriser l'accessibilité…": {
       "extractionState": "manual",
       "localizations": {
@@ -65,6 +184,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Autoriser l'accessibilité…"
+          }
+        }
+      }
+    },
+    "Autoriser…": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autoriser…"
           }
         }
       }
@@ -171,6 +307,23 @@
         }
       }
     },
+    "Hors de portée de l'interrupteur natif : méthode de secours pour eux seuls ; les clics sur l'horloge, le Wi‑Fi et la batterie sont alors relayés.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Out of reach of the native switch: the fallback method is used for these only, and clicks on the clock, Wi‑Fi and battery are relayed."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hors de portée de l'interrupteur natif : méthode de secours pour eux seuls ; les clics sur l'horloge, le Wi‑Fi et la batterie sont alors relayés."
+          }
+        }
+      }
+    },
     "Icônes": {
       "extractionState": "manual",
       "localizations": {
@@ -184,6 +337,57 @@
           "stringUnit": {
             "state": "translated",
             "value": "Icônes"
+          }
+        }
+      }
+    },
+    "Interrupteur natif (accès complet au disque)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Native switch (Full Disk Access)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Interrupteur natif (accès complet au disque)"
+          }
+        }
+      }
+    },
+    "Jamais": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Never"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jamais"
+          }
+        }
+      }
+    },
+    "Masquer aussi Spotlight et les éléments système": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Also hide Spotlight and system items"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masquer aussi Spotlight et les éléments système"
           }
         }
       }
@@ -235,6 +439,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Musique"
+          }
+        }
+      }
+    },
+    "Méthode de masquage": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hiding method"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Méthode de masquage"
+          }
+        }
+      }
+    },
+    "Méthode de secours": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fallback method"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Méthode de secours"
           }
         }
       }
@@ -307,6 +545,23 @@
         }
       }
     },
+    "Ouvrir Réglages": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open System Settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir Réglages"
+          }
+        }
+      }
+    },
     "Ouvrir à la connexion": {
       "extractionState": "manual",
       "localizations": {
@@ -341,6 +596,40 @@
         }
       }
     },
+    "Pour lire les icônes de la barre et relayer les clics.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To read the menu bar icons and relay clicks."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour lire les icônes de la barre et relayer les clics."
+          }
+        }
+      }
+    },
+    "Pour masquer via l'interrupteur natif de macOS : l'icône de Bar27 et les clics sur l'horloge, le Wi‑Fi, la batterie restent normaux. Sans lui, méthode de secours. Ajoutez Bar27 dans la liste (« + » ou glisser-déposer) ; Bar27 bascule tout seul.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To hide icons with macOS's native switch: the Bar27 icon and clicks on the clock, Wi‑Fi and battery stay normal. Without it, Bar27 uses the fallback method. Add Bar27 to the list (“+” or drag and drop); Bar27 switches automatically."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour masquer via l'interrupteur natif de macOS : l'icône de Bar27 et les clics sur l'horloge, le Wi‑Fi, la batterie restent normaux. Sans lui, méthode de secours. Ajoutez Bar27 dans la liste (« + » ou glisser-déposer) ; Bar27 bascule tout seul."
+          }
+        }
+      }
+    },
     "Quitter Bar27": {
       "extractionState": "manual",
       "localizations": {
@@ -354,6 +643,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Quitter Bar27"
+          }
+        }
+      }
+    },
+    "Raccourci": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shortcut"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raccourci"
+          }
+        }
+      }
+    },
+    "Re-masquer après": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide again after"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Re-masquer après"
           }
         }
       }

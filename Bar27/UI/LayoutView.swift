@@ -88,7 +88,7 @@ struct LayoutView: View {
         }
     }
 
-    private func permissionRow(title: String, detail: String, action: (String, () -> Void)) -> some View {
+    private func permissionRow(title: LocalizedStringKey, detail: LocalizedStringKey, action: (LocalizedStringKey, () -> Void)) -> some View {
         HStack(alignment: .top) {
             Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.orange)
             VStack(alignment: .leading, spacing: 2) {
