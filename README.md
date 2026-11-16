@@ -30,9 +30,10 @@ system's own ordering.
 - **Auto re-hide** with an adjustable delay.
 - **Right-click menu**: Show all, Arrange the bar…, Quit.
 - **Native hiding first**: uses the system's own per-app switch when Full Disk Access is granted, and falls back to the "assessment mode" assertion otherwise.
+- **English and French**, following the system language.
 - Open source, no telemetry.
 
-![The "Arrange the bar" window, shown with demo data (the interface is currently French only)](docs/screenshots/arrange-window.png)
+![The "Arrange the bar" window, shown with demo data](docs/screenshots/arrange-window.png)
 
 ## Installation
 
