@@ -16,9 +16,9 @@ enum NativeAllowListBackend {
         case unavailable, unreadable, notSynchronized
         var description: String {
             switch self {
-            case .unavailable: "Appels CoreFoundation avec conteneur indisponibles"
-            case .unreadable: "Préférence trackedApplications illisible (accès au conteneur Centre de contrôle refusé ?)"
-            case .notSynchronized: "Préférence trackedApplications non synchronisée"
+            case .unavailable: String(localized: "Appels CoreFoundation avec conteneur indisponibles")
+            case .unreadable: String(localized: "Préférence trackedApplications illisible (accès au conteneur Centre de contrôle refusé ?)")
+            case .notSynchronized: String(localized: "Préférence trackedApplications non synchronisée")
             }
         }
     }

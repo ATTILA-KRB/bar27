@@ -185,18 +185,25 @@ struct LayoutView: View {
 
     // MARK: Diagnostic
 
+    private func scanSummary(_ scan: ItemProvider.Scan) -> String {
+        let icons = String(localized: "\(scan.items.count) icônes")
+        var line = String(localized: "\(icons) · lecture \(Int(scan.duration * 1000)) ms")
+        if !scan.unresponsive.isEmpty { line += String(localized: " · lentes : \(scan.unresponsive.joined(separator: ", "))") }
+        return line
+    }
+
     private var diagnostics: some View {
         HStack(alignment: .firstTextBaseline) {
             VStack(alignment: .leading, spacing: 2) {
                 if controller.isDemo {
-                    Text("\(DemoMode.items.count) icônes · mode démo (données fictives)")
+                    Text("\(String(localized: "\(DemoMode.items.count) icônes")) · mode démo (données fictives)")
                 } else if let scan = controller.lastScan {
-                    Text("\(scan.items.count) icônes · lecture \(Int(scan.duration * 1000)) ms" + (scan.unresponsive.isEmpty ? "" : " · lentes : \(scan.unresponsive.joined(separator: ", "))"))
+                    Text(verbatim: scanSummary(scan))
                 }
-                Text("Méthode : " + (controller.backend == .native ? "interrupteur natif" : "méthode de secours (clics système relayés : \(controller.bridgedClicks))"))
-                Text("Masquées : " + (concealedIDs.isEmpty ? "aucune" : concealedIDs.map(AppInfo.displayName(for:)).joined(separator: ", ")))
+                Text("Méthode : \(controller.backend == .native ? String(localized: "interrupteur natif") : String(localized: "méthode de secours (clics système relayés : \(controller.bridgedClicks))"))")
+                Text("Masquées : \(concealedIDs.isEmpty ? String(localized: "aucune") : concealedIDs.map(AppInfo.displayName(for:)).joined(separator: ", "))")
                 if !controller.unconcealable.isEmpty {
-                    Text("Restent visibles (hors de portée de l'interrupteur natif) : " + controller.unconcealable.map(AppInfo.displayName(for:)).joined(separator: ", "))
+                    Text("Restent visibles (hors de portée de l'interrupteur natif) : \(controller.unconcealable.map(AppInfo.displayName(for:)).joined(separator: ", "))")
                         .foregroundStyle(.orange)
                 }
                 if let error = controller.lastError { Text(error).foregroundStyle(.red) }
