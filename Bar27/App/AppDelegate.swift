@@ -68,7 +68,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func showLayout() {
         if layoutWindow == nil {
             let window = NSWindow(contentViewController: NSHostingController(rootView: LayoutView(controller: controller)))
-            window.title = "Organiser la barre des menus"
+            window.title = String(localized: "Organiser la barre des menus")
             window.isReleasedWhenClosed = false
             window.center()
             layoutWindow = window

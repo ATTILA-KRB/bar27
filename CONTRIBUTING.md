@@ -27,3 +27,7 @@ You need macOS 27, Xcode with the macOS 27 SDK and a Developer ID certificate
 - Code adapted from other projects must be GPLv3-compatible and credited in the README.
 - Behaviour changes need a note in `CHANGELOG.md` under *Unreleased*.
 - Manual checks live in `scripts/verify-*.sh`; see `docs/SPIKES.md` for how the system behaviour was measured.
+
+## Localisation
+
+The interface follows the system language (French and English). Strings live in `Bar27/Resources/Localizable.xcstrings`; the **source language is French**, so the French text is the key. SwiftUI literals (`Text("…")`) are localised automatically; elsewhere use `String(localized: "…")`. Add the English translation to the catalog for every new string.
