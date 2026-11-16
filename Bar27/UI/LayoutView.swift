@@ -13,6 +13,12 @@ struct LayoutView: View {
     @State private var confirmReset = false
 
     private var rows: [LayoutRow] {
+        if controller.isDemo {
+            return LayoutRows.make(
+                scanned: DemoMode.items.map { ($0.bundleID, $0.appName) }, layout: controller.layout,
+                running: Set(DemoMode.apps.map(\.bundleID)), selfBundleID: "", displayName: { _ in nil }
+            )
+        }
         let running = Set(NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier))
         return LayoutRows.make(
             scanned: (controller.lastScan?.items ?? []).map { ($0.bundleID, $0.appName) },
@@ -55,7 +61,7 @@ struct LayoutView: View {
     // MARK: Autorisations
 
     @ViewBuilder private var permissions: some View {
-        if !accessibility || !fullDiskAccess {
+        if !controller.isDemo, !accessibility || !fullDiskAccess {
             VStack(alignment: .leading, spacing: 8) {
                 if !accessibility {
                     permissionRow(
@@ -177,7 +183,9 @@ struct LayoutView: View {
     private var diagnostics: some View {
         HStack(alignment: .firstTextBaseline) {
             VStack(alignment: .leading, spacing: 2) {
-                if let scan = controller.lastScan {
+                if controller.isDemo {
+                    Text("\(DemoMode.items.count) icônes · mode démo (données fictives)")
+                } else if let scan = controller.lastScan {
                     Text("\(scan.items.count) icônes · lecture \(Int(scan.duration * 1000)) ms" + (scan.unresponsive.isEmpty ? "" : " · lentes : \(scan.unresponsive.joined(separator: ", "))"))
                 }
                 Text("Méthode : " + (controller.backend == .native ? "interrupteur natif" : "méthode de secours (clics système relayés : \(controller.bridgedClicks))"))
@@ -213,6 +221,7 @@ enum AppInfo {
     static func displayName(for bundleID: String) -> String { name(for: bundleID) ?? bundleID }
 
     @MainActor static func icon(for bundleID: String) -> NSImage {
+        if let symbol = DemoMode.symbol(for: bundleID), let image = NSImage(systemSymbolName: symbol, accessibilityDescription: nil) { return image }
         if let url = url(for: bundleID) { return NSWorkspace.shared.icon(forFile: url.path) }
         return NSImage(systemSymbolName: "app.dashed", accessibilityDescription: nil) ?? NSImage()
     }
