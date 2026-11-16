@@ -88,10 +88,14 @@ final class ConcealmentController {
         static let concealSystemItems = "ConcealSystemItems"
     }
 
-    init(store: LayoutStore, selfBundleID: String) {
+    /// Mode démo : données fictives, rien n'est lu, masqué ni sauvegardé.
+    let isDemo: Bool
+
+    init(store: LayoutStore, selfBundleID: String, demo: Bool = false) {
         self.store = store
         self.selfBundleID = selfBundleID
-        self.layout = store.load()
+        self.isDemo = demo
+        self.layout = demo ? DemoMode.layout : store.load()
         self.preferredBackend = UserDefaults.standard.string(forKey: Keys.backend).flatMap(HidingBackend.init(rawValue:))
         // `double(forKey:)` convertit aussi les chaînes du domaine d'arguments (`-AutoRehideDelay 3`).
         self.revealOnHover = UserDefaults.standard.object(forKey: Keys.revealOnHover) == nil ? true : UserDefaults.standard.bool(forKey: Keys.revealOnHover)
@@ -102,6 +106,7 @@ final class ConcealmentController {
     // MARK: Cycle de vie
 
     func start() {
+        if isDemo { return }
         // Un plantage précédent a pu laisser des apps éteintes : on les rallume d'abord.
         if NativeAllowListBackend.isAvailable { NativeAllowListBackend.releaseAll() }
         backend = resolvedBackend()
@@ -162,11 +167,13 @@ final class ConcealmentController {
 
     func assign(_ bundleID: String, to section: Section) {
         layout.assign(bundleID, to: section)
+        if isDemo { return }
         do { try store.save(layout) } catch { lastError = "Sauvegarde du layout : \(error.localizedDescription)" }
         apply()
     }
 
     func refreshItems() async {
+        if isDemo { return }
         lastScan = await ItemProvider.scan()
         refreshSystemFrames()
     }
@@ -177,6 +184,7 @@ final class ConcealmentController {
 
     /// Recalcule le plan et l'applique. Les appels rapprochés sont fusionnés.
     func apply() {
+        if isDemo { return }
         if applyTask != nil {
             pendingApply = true
             return
@@ -293,7 +301,8 @@ final class ConcealmentController {
 
     /// Remet tout en « visible ».
     func resetLayout() {
-        layout = Layout()
+        layout = isDemo ? DemoMode.layout : Layout()
+        if isDemo { return }
         do { try store.save(layout) } catch { lastError = "Sauvegarde du layout : \(error.localizedDescription)" }
         apply()
     }
