@@ -56,30 +56,51 @@ private let layout = Layout(sections: ["b.hid": .hidden, "c.always": .alwaysHidd
 }
 
 @Test func bridgesOnlySystemClicksUnderAssertion() {
-    let clock = CGRect(x: 1382, y: 0, width: 110, height: 33)
-    #expect(ClickBridgeRule.shouldBridge(click: CGPoint(x: 1400, y: 10), systemItemFrames: [clock], assertionActive: true))
-    #expect(!ClickBridgeRule.shouldBridge(click: CGPoint(x: 1400, y: 10), systemItemFrames: [clock], assertionActive: false))
-    #expect(!ClickBridgeRule.shouldBridge(click: CGPoint(x: 500, y: 10), systemItemFrames: [clock], assertionActive: true))
-    #expect(!ClickBridgeRule.shouldBridge(click: CGPoint(x: 1400, y: 300), systemItemFrames: [clock], assertionActive: true))
-    #expect(!ClickBridgeRule.shouldBridge(click: CGPoint(x: 0, y: 0), systemItemFrames: [.zero], assertionActive: true), "item sans cadre AX")
+    let clock = [SystemItem(identifier: "com.apple.menuextra.clock", frame: CGRect(x: 1382, y: 0, width: 110, height: 33))]
+    #expect(ClickBridgeRule.shouldBridge(click: CGPoint(x: 1400, y: 10), systemItems: clock, assertionActive: true))
+    #expect(!ClickBridgeRule.shouldBridge(click: CGPoint(x: 1400, y: 10), systemItems: clock, assertionActive: false))
+    #expect(!ClickBridgeRule.shouldBridge(click: CGPoint(x: 500, y: 10), systemItems: clock, assertionActive: true))
+    #expect(!ClickBridgeRule.shouldBridge(click: CGPoint(x: 1400, y: 300), systemItems: clock, assertionActive: true))
+    #expect(!ClickBridgeRule.shouldBridge(click: .zero, systemItems: [SystemItem(identifier: "x", frame: .zero)], assertionActive: true), "item sans cadre AX")
 }
 
-/// Relevé réel (17/11/2026) : Spotlight masqué par l'assertion ; à la levée il réapparaît et
-/// Wi‑Fi (1252 → 1220) et batterie (1290 → 1258) glissent de 32 pt vers la gauche.
-@Test func replaysOnTheSameItemAfterTheBarShifts() {
-    let wifi = CGRect(x: 1252, y: 0, width: 22, height: 33), battery = CGRect(x: 1290, y: 0, width: 26, height: 33)
-    let frames = [CGRect.zero, wifi, battery]
-    let click = CGPoint(x: 1263, y: 12)
-    let index = ClickBridgeRule.targetIndex(click: click, systemItemFrames: frames)
-    #expect(index == 1)
-    let wifiAfter = wifi.offsetBy(dx: -32, dy: 0), batteryAfter = battery.offsetBy(dx: -32, dy: 0)
-    #expect(batteryAfter.contains(click), "rejouer aux coordonnées d'origine ouvrirait la batterie")
-    let replay = ClickBridgeRule.replayPoint(click: click, from: wifi, to: wifiAfter)
-    #expect(wifiAfter.contains(replay) && !batteryAfter.contains(replay))
-    #expect(ClickBridgeRule.replayPoint(click: click, from: wifi, to: wifi) == click, "barre immobile : clic inchangé")
-    #expect(ClickBridgeRule.replayPoint(click: click, from: wifi, to: .zero) == click, "cadre perdu : clic inchangé")
-    let edge = ClickBridgeRule.replayPoint(click: CGPoint(x: 1251.5, y: 12), from: wifi, to: wifiAfter)
-    #expect(wifiAfter.contains(edge), "clic dans la marge de 1 pt : ramené dans l'item")
+/// Relevé réel (17/11/2026, macOS 27.0.1). Sous assertion : son, Wi‑Fi, batterie, Control Center,
+/// horloge. À la levée, Spotlight réapparaît et « À l'écoute » s'insère AVANT le Wi‑Fi (seulement
+/// si un média a joué : bug intermittent) — Wi‑Fi et batterie glissent de −32 pt ET changent de rang.
+private func item(_ name: String, _ x: CGFloat, _ w: CGFloat) -> SystemItem {
+    SystemItem(identifier: "com.apple.menuextra.\(name)", frame: CGRect(x: x, y: 0, width: w, height: 33))
+}
+private let concealedBar = [item("sound", 1032, 22), item("wifi", 1252, 22), item("battery", 1290, 26), item("controlcenter", 1332, 26), item("clock", 1374, 118)]
+private let liftedBar = [item("sound", 967, 22), item("now-playing", 1041, 17), item("wifi", 1220, 22), item("battery", 1258, 26), item("controlcenter", 1332, 26), item("clock", 1374, 118)]
+
+@Test func pressesSystemItemsWithoutLiftingExceptTheClock() {
+    let battery = ClickBridgeRule.target(click: CGPoint(x: 1300, y: 12), systemItems: concealedBar)
+    #expect(battery?.identifier == "com.apple.menuextra.battery")
+    #expect(battery.map(ClickBridgeRule.canPress) == true, "batterie : AXPress, pas de levée, la barre ne bouge pas")
+    for name in ["wifi", "sound", "controlcenter"] { #expect(ClickBridgeRule.canPress(item(name, 0, 10))) }
+    #expect(!ClickBridgeRule.canPress(item("clock", 1374, 118)), "l'horloge ignore AXPress")
+    #expect(!ClickBridgeRule.canPress(SystemItem(identifier: nil, frame: CGRect(x: 0, y: 0, width: 10, height: 10))))
+}
+
+@Test func liftReplayFindsTheItemByIdentifierNotRank() {
+    let click = CGPoint(x: 1300, y: 12)
+    let battery = ClickBridgeRule.target(click: click, systemItems: concealedBar)!
+    let index = concealedBar.firstIndex(of: battery)!
+    #expect(liftedBar[index].identifier == "com.apple.menuextra.wifi", "par rang on viserait le Wi‑Fi")
+    #expect(liftedBar.first { $0.frame.contains(click) }?.identifier != "com.apple.menuextra.battery", "aux coordonnées d'origine on raterait la batterie")
+    let now = ClickBridgeRule.relocate(battery, in: liftedBar)
+    #expect(now == CGRect(x: 1258, y: 0, width: 26, height: 33))
+    let replay = ClickBridgeRule.replayPoint(click: click, from: battery.frame, to: now!)
+    #expect(ClickBridgeRule.target(click: replay, systemItems: liftedBar)?.identifier == "com.apple.menuextra.battery")
+    // Horloge : avant le correctif, le rang 4 désignait Control Center après la levée (−77 pt).
+    let clock = ClickBridgeRule.target(click: CGPoint(x: 1420, y: 12), systemItems: concealedBar)!
+    let clockNow = ClickBridgeRule.relocate(clock, in: liftedBar)!
+    #expect(ClickBridgeRule.target(click: ClickBridgeRule.replayPoint(click: CGPoint(x: 1420, y: 12), from: clock.frame, to: clockNow), systemItems: liftedBar)?.identifier == "com.apple.menuextra.clock")
+    #expect(ClickBridgeRule.relocate(SystemItem(identifier: nil, frame: battery.frame), in: liftedBar) == nil)
+    #expect(ClickBridgeRule.relocate(item("gone", 0, 10), in: liftedBar) == nil)
+    let edge = ClickBridgeRule.replayPoint(click: CGPoint(x: 1251.5, y: 12), from: concealedBar[1].frame, to: liftedBar[2].frame)
+    #expect(liftedBar[2].frame.contains(edge), "clic dans la marge de 1 pt : ramené dans l'item")
+    #expect(ClickBridgeRule.replayPoint(click: click, from: battery.frame, to: battery.frame) == click)
 }
 
 @Test func autoRehideWaitsForMenusAndPointer() {

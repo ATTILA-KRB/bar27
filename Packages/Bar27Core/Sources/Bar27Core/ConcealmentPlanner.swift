@@ -33,23 +33,54 @@ public enum ConcealmentPlanner {
     }
 }
 
-/// Faut-il relayer un clic vers un item système ? Seulement sous assertion (MenuBarAgent
-/// ignore alors les clics sur horloge, batterie, Wi‑Fi) et si le clic tombe sur l'un d'eux.
+/// Item système (MenuBarAgent) tel que lu par Accessibility : identifiant stable
+/// (`com.apple.menuextra.battery`…) et cadre écran.
+public struct SystemItem: Sendable, Equatable {
+    public var identifier: String?
+    public var frame: CGRect
+    public init(identifier: String?, frame: CGRect) {
+        self.identifier = identifier
+        self.frame = frame
+    }
+}
+
+/// Relais des clics vers les items système sous assertion : MenuBarAgent ignore alors les clics
+/// souris sur horloge, batterie, Wi‑Fi…
+///
+/// Deux chemins (mesurés sur macOS 27.0.1, 17/11/2026) :
+/// - **AXPress** sur l'item : honoré malgré l'assertion, rien n'est levé, la barre ne bouge pas.
+///   Marche pour Wi‑Fi, batterie, son, Control Center ; l'horloge l'ignore (renvoie succès sans
+///   rien ouvrir), d'où `pressIgnored`.
+/// - **Levée + rejeu** (horloge, items inconnus) : lever l'assertion réaffiche ce qu'elle masque
+///   (Spotlight, « À l'écoute »…) et décale **et renumérote** les items. On retrouve donc l'item
+///   par identifiant, jamais par rang ni par coordonnées.
 public enum ClickBridgeRule {
-    public static func shouldBridge(click: CGPoint, systemItemFrames: [CGRect], assertionActive: Bool) -> Bool {
-        assertionActive && targetIndex(click: click, systemItemFrames: systemItemFrames) != nil
+    /// Items dont AXPress n'ouvre rien : passer par la levée.
+    public static let pressIgnored: Set<String> = ["com.apple.menuextra.clock"]
+
+    public static func shouldBridge(click: CGPoint, systemItems: [SystemItem], assertionActive: Bool) -> Bool {
+        assertionActive && target(click: click, systemItems: systemItems) != nil
     }
 
-    /// Rang (dans MenuBarAgent) de l'item système sous le clic. Les cadres vides (item sans
-    /// position AX) sont ignorés : `.zero` élargi contiendrait le coin de l'écran.
-    public static func targetIndex(click: CGPoint, systemItemFrames: [CGRect]) -> Int? {
-        systemItemFrames.firstIndex { !$0.isEmpty && $0.insetBy(dx: -1, dy: -1).contains(click) }
+    /// Item système sous le clic. Les cadres vides (item sans position AX) sont ignorés :
+    /// `.zero` élargi contiendrait le coin de l'écran.
+    public static func target(click: CGPoint, systemItems: [SystemItem]) -> SystemItem? {
+        systemItems.first { !$0.frame.isEmpty && $0.frame.insetBy(dx: -1, dy: -1).contains(click) }
     }
 
-    /// Point de rejeu après la levée. Lever l'assertion réaffiche ce qu'elle masquait (Spotlight,
-    /// apps) et décale les items système : rejouer aux coordonnées d'origine tomberait sur le
-    /// voisin (clic Wi‑Fi → batterie, mesuré le 17/11/2026 : −32 pt). On garde la position
-    /// relative du clic dans le nouveau cadre de l'item visé.
+    /// AXPress possible sans lever l'assertion ?
+    public static func canPress(_ item: SystemItem) -> Bool {
+        guard let id = item.identifier, !id.isEmpty else { return false }
+        return !pressIgnored.contains(id)
+    }
+
+    /// Cadre actuel de l'item visé, retrouvé par identifiant (nil s'il a disparu ou n'a pas d'identifiant).
+    public static func relocate(_ item: SystemItem, in items: [SystemItem]) -> CGRect? {
+        guard let id = item.identifier, !id.isEmpty else { return nil }
+        return items.first { $0.identifier == id && !$0.frame.isEmpty }?.frame
+    }
+
+    /// Point de rejeu : même position relative du clic dans le nouveau cadre de l'item.
     public static func replayPoint(click: CGPoint, from old: CGRect, to new: CGRect) -> CGPoint {
         guard !new.isEmpty, old != new else { return click }
         func ratio(_ v: CGFloat, _ min: CGFloat, _ length: CGFloat) -> CGFloat {

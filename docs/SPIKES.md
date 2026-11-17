@@ -60,10 +60,20 @@ Les clics sur l'horloge, la batterie ou le Wi‑Fi sont ignorés tant que l'asse
 - **Assistant porteur de l'icône** : l'icône de Gemini appartient à `com.google.GeminiMacOS.launcher` (`Gemini.app/Contents/Helpers/GeminiAppLauncher.app`), mais `trackedApplications` la range sous `com.google.GeminiMacOS`. Invariant : le layout garde le bundleID du propriétaire AX ; l'interrupteur natif résout la clé suivie en remontant les `.app` englobantes (`TrackedApplications.trackedKey`, `NativeAllowListBackend.containingBundleIDs`).
 - **Éléments système hors interrupteur** : Spotlight (`com.apple.campo`, « Siri AI.app ») n'est pas dans `trackedApplications` ; sa préférence `NSStatusItem VisibleCC Item-0` (domaine `com.apple.campo`) n'est pas relue à chaud (vérifié : écrite à false, l'item reste). En natif il reste donc visible ; Bar27 le signale (`unconcealable`, fenêtre Organiser) au lieu de l'ignorer en silence. Seule l'assertion le masque : option « Masquer aussi Spotlight et les éléments système » (`ConcealSystemItems`), assertion limitée au résidu non suivi, interrupteur natif pour le reste. Vérifié par capture : Spotlight masqué, icône Bar27 **toujours visible** (contrairement à l'assertion seule de la phase 2), journal `VisibilityRestrictionAssertion session activated`.
 
-## Relais de clic : rejouer sur l'item, pas aux coordonnées (2026-11-17)
+## Relais de clic : AXPress d'abord, levée seulement pour l'horloge (2026-11-17)
 
-- **Symptôme** : avec « Masquer aussi Spotlight » (assertion résiduelle), un clic sur le Wi‑Fi ouvrait la batterie, et un clic sur la batterie ouvrait Spotlight.
-- **Cause** : lever l'assertion réaffiche ce qu'elle masque. Ici, Spotlight réapparaît et décale le Wi‑Fi (1252 → 1220) et la batterie (1290 → 1258) de −32 pt. L'AX est à jour environ 25 ms après la levée. Le clic, rejoué aux coordonnées d'origine, tombait donc sur le voisin. À noter : sous assertion, un élément masqué garde un cadre AX qui chevauche les items visibles (Spotlight à x = 1291, sur la batterie).
-- **Invariant** : le tap mémorise le **rang** de l'item MenuBarAgent visé et son cadre. Après la levée, on relit les cadres et on rejoue à la même position relative dans le nouveau cadre (`ClickBridgeRule.replayPoint`). Les cadres système sont aussi rafraîchis après **chaque** application, y compris en natif sans changement d'assertion.
-- **Vérifié** sur le binaire installé : 16/16 clics atteignent le bon panneau (Wi‑Fi, batterie, Control Center, horloge), avec une levée de 190 à 260 ms. L'ancien binaire donnait Wi‑Fi → batterie et batterie → Spotlight.
+- **Symptôme** : avec « Masquer aussi Spotlight » (assertion résiduelle), un clic sur la batterie fait glisser toute la barre puis la ramène, et ouvre parfois le mauvais panneau (Wi‑Fi → batterie, batterie → Spotlight, horloge → Control Center). C'est intermittent.
+- **Cause** : sous assertion, MenuBarAgent ignore les clics souris. L'ancien relais levait donc l'assertion et rejouait le clic. Mais la levée réaffiche ce que l'assertion masque : Spotlight, et « **À l'écoute** » si un média a joué récemment (d'où l'intermittence). La barre glisse (−32 pt) **et les items changent de rang** : « À l'écoute » s'insère avant le Wi‑Fi. Rejouer aux coordonnées d'origine, comme en 0.2.0, ou au rang d'origine, comme en 0.2.1, visait le voisin. La recomposition arrive 90 à 340 ms après la levée ; un clic rejoué avant est souvent perdu.
+- **Faits mesurés** (macOS 27.0.1) :
+  - Chaque item système est un `AXHostingView` ; son enfant `AXMenuBarItem` porte `AXIdentifier` (`com.apple.menuextra.{sound,now-playing,wifi,battery,controlcenter,clock}`) et l'action `AXPress`.
+  - **`AXPress` est honoré sous assertion** pour le son, le Wi‑Fi, la batterie et Control Center (16/16), en environ 25 ms et sans rien lever.
+  - L'horloge renvoie un succès à `AXPress` sans rien ouvrir. `postToPid` et `cgSessionEventTap` restent ignorés eux aussi.
+- **Invariants** (`ClickBridgeRule`) :
+  1. Un item s'identifie par `AXIdentifier`, jamais par rang ni par coordonnées.
+  2. On essaie `AXPress` d'abord, sans levée (`canPress`). Seule l'horloge (`pressIgnored`) ou un `AXPress` refusé passe par la levée.
+  3. Après une levée, on attend que la barre soit stable (deux lectures identiques après un changement, plafond de 450 ms), puis on rejoue dans le nouveau cadre de l'item retrouvé par identifiant.
+  4. Les items système sont relus après **chaque** application, y compris en natif.
+- **Vérifié** sur le binaire installé :
+  - AXPress : 16/16 (son, Wi‑Fi, batterie, Control Center), et la barre reste immobile pendant le clic sur la batterie.
+  - Horloge : 12/12. La sonde `nctrace` suit le Centre de notifications ; `which` se trompe quand un panneau reste ouvert d'un essai à l'autre.
 - **Les assertions ne se cumulent pas** : la dernière posée l'emporte. Un `--conceal` lancé pendant que Bar27 tourne réaffiche Spotlight.

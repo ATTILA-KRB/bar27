@@ -46,18 +46,34 @@ enum ItemProvider {
         return Scan(items: items, duration: duration, unresponsive: unresponsive)
     }
 
-    /// Cadres des items système (un seul process, ~quelques ms). Sert au relais de clics.
-    /// Non filtré : l'indice est le rang de l'item dans MenuBarAgent et sert à le retrouver
-    /// après la levée (`ClickBridgeRule.replayPoint`) ; les cadres vides sont ignorés par la règle.
-    static func systemItemFrames() -> [CGRect] {
+    /// Items système (un seul process, ~quelques ms) : identifiant stable + cadre. Sert au relais
+    /// de clics. Le rang n'est PAS stable (la levée de l'assertion insère « À l'écoute »,
+    /// Spotlight…) : on identifie un item par `AXIdentifier`, lu sur l'enfant AXMenuBarItem.
+    static func systemItems() -> [SystemItem] {
+        systemElements().map { SystemItem(identifier: $0.identifier, frame: $0.frame) }
+    }
+
+    /// AXPress sur l'item système `identifier`. Honoré par MenuBarAgent même sous assertion
+    /// (contrairement aux clics souris) ; `false` si l'item est introuvable ou refuse l'action.
+    static func pressSystemItem(_ identifier: String) -> Bool {
+        guard let target = systemElements().first(where: { $0.identifier == identifier }) else { return false }
+        return AXUIElementPerformAction(target.element, kAXPressAction as CFString) == .success
+    }
+
+    private static func systemElements() -> [(identifier: String?, frame: CGRect, element: AXUIElement)] {
         guard let agent = NSRunningApplication.runningApplications(withBundleIdentifier: menuBarAgentBundleID).first else { return [] }
-        // Cadres seuls (pas de titre) : appelé pendant la levée d'un clic relayé, chaque ms compte.
         let element = AXUIElementCreateApplication(agent.processIdentifier)
         AXUIElementSetMessagingTimeout(element, messagingTimeout)
         guard let bar: AXUIElement = attribute(element, "AXExtrasMenuBar"),
               let children: [AXUIElement] = attribute(bar, kAXChildrenAttribute)
         else { return [] }
-        return children.map { frame(of: $0) ?? .zero }
+        return children.map { host in
+            // Chaque item est une vue hôte (AXHostingView) dont l'enfant AXMenuBarItem porte
+            // l'identifiant et l'action AXPress.
+            let inner = (attribute(host, kAXChildrenAttribute) as [AXUIElement]?)?.first
+            let identifier: String? = inner.flatMap { attribute($0, kAXIdentifierAttribute) }
+            return (identifier, frame(of: host) ?? .zero, inner ?? host)
+        }
     }
 
     private final class Collector: @unchecked Sendable {

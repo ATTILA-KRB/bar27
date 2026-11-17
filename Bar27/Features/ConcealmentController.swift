@@ -77,8 +77,8 @@ final class ConcealmentController {
         guard let self, self.state == .collapsed else { return }
         self.set(.revealed)
     }
-    @ObservationIgnored private(set) lazy var clickBridge = ClickBridge { [weak self] location, index, frame in
-        Task { @MainActor in await self?.bridgeClick(at: location, item: index, frame: frame) }
+    @ObservationIgnored private(set) lazy var clickBridge = ClickBridge { [weak self] location, item in
+        Task { @MainActor in await self?.bridgeClick(at: location, item: item) }
     }
 
     private enum Keys {
@@ -320,8 +320,8 @@ final class ConcealmentController {
     private func refreshSystemFrames() {
         let bridge = clickBridge
         Task.detached {
-            let frames = ItemProvider.systemItemFrames()
-            bridge.state.withLock { $0.systemFrames = frames }
+            let items = ItemProvider.systemItems()
+            bridge.state.withLock { $0.systemItems = items }
         }
     }
 
@@ -334,42 +334,59 @@ final class ConcealmentController {
         return .milliseconds(stored > 0 ? min(max(stored, 30), 2000) : 120)
     }
 
-    private func bridgeClick(at location: CGPoint, item index: Int, frame: CGRect) async {
+    private func bridgeClick(at location: CGPoint, item: SystemItem) async {
+        let start = ContinuousClock.now
+        let name = item.identifier ?? "?"
+        // 1. AXPress : rien n'est levé, la barre ne bouge pas (pas de flash ni de décalage).
+        if ClickBridgeRule.canPress(item), let identifier = item.identifier,
+           await Task.detached(operation: { ItemProvider.pressSystemItem(identifier) }).value {
+            bridgedClicks += 1
+            logger.info("Clic relayé par AXPress (\(name, privacy: .public)) en \(String(describing: start.duration(to: .now)), privacy: .public)")
+            return
+        }
+        // 2. Levée + rejeu (horloge, ou AXPress refusé).
         guard let current = token, !bridging else {
             ClickBridge.replayClick(at: location)
             return
         }
         bridging = true
-        let start = ContinuousClock.now
+        let before = clickBridge.state.withLock { $0.systemItems }
         AssessmentBackend.invalidate(current)
         token = nil
         clickBridge.state.withLock { $0.assertionActive = false }
-        // MenuBarAgent ignore un clic qui arrive avant la levée effective (≥ 30 ms) ; la levée
-        // réaffiche ce que l'assertion masquait et décale les items système (AX à jour ~25 ms
-        // après, mesuré) : on rejoue sur le nouveau cadre de l'item visé, pas aux coordonnées
-        // d'origine, sinon le clic Wi‑Fi ouvre la batterie.
-        let target = await Self.relocatedClick(location, item: index, frame: frame)
+        // MenuBarAgent ignore un clic qui arrive avant la levée effective (≥ 30 ms). La levée
+        // réaffiche ce que l'assertion masquait et décale ET renumérote les items système :
+        // on rejoue sur l'item retrouvé par identifiant, une fois la barre stabilisée, pas aux
+        // coordonnées ni au rang d'origine.
+        let target = await Self.relocatedClick(location, item: item, before: before)
         ClickBridge.replayClick(at: target)
         try? await Task.sleep(for: Self.liftDuration)
         bridging = false
         bridgedClicks += 1
         let shift = Int(target.x - location.x)
-        logger.info("Clic relayé (item \(index), décalage \(shift) pt), levée \(String(describing: start.duration(to: .now)), privacy: .public)")
+        logger.info("Clic relayé par levée (\(name, privacy: .public), décalage \(shift) pt), levée \(String(describing: start.duration(to: .now)), privacy: .public)")
         apply()
     }
 
-    /// Relit le cadre de l'item visé après la levée (seconde lecture si rien n'a encore bougé :
-    /// un item immobile, comme Control Center, ne paie que ~15 ms), puis transpose le clic dedans.
-    private static func relocatedClick(_ location: CGPoint, item index: Int, frame: CGRect) async -> CGPoint {
+    /// Attend que la barre se recompose après la levée, puis transpose le clic dans le nouveau
+    /// cadre de l'item. Mesuré (27.0.1) : la recomposition (Spotlight, « À l'écoute »…) arrive
+    /// 90 à 340 ms après la levée ; un clic rejoué pendant ce temps est souvent perdu. Stable =
+    /// deux lectures identiques après un changement ; plafond 450 ms si rien ne bouge.
+    private static func relocatedClick(_ location: CGPoint, item: SystemItem, before: [SystemItem]) async -> CGPoint {
+        let deadline = ContinuousClock.now + .milliseconds(450)
+        var previous = before
+        var changed = false
+        var current = item.frame
         try? await Task.sleep(for: .milliseconds(30))
-        var current = frame
-        for attempt in 0..<2 {
-            let frames = await Task.detached { ItemProvider.systemItemFrames() }.value
-            if frames.indices.contains(index) { current = frames[index] }
-            if current != frame || attempt == 1 { break }
+        while ContinuousClock.now < deadline {
+            let items = await Task.detached { ItemProvider.systemItems() }.value
+            if let frame = ClickBridgeRule.relocate(item, in: items) { current = frame }
+            if changed && items == previous { break }
+            if items != before { changed = true }
+            previous = items
             try? await Task.sleep(for: .milliseconds(15))
         }
-        return ClickBridgeRule.replayPoint(click: location, from: frame, to: current)
+        return ClickBridgeRule.replayPoint(click: location, from: item.frame, to: current)
     }
 
     // MARK: Re-masquage automatique

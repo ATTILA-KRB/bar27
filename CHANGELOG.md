@@ -4,6 +4,9 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+- Clicking a system icon (battery, Wi‑Fi, sound, Control Center) while Spotlight is hidden no longer makes the whole menu bar slide and come back, and no longer opens the wrong menu when a "Now Playing" item is around. Bar27 now presses the icon through Accessibility without lifting the hiding. The clock still needs a brief lift; its click is replayed once the bar has settled, on the clock itself.
+
 ## [0.2.1] - 2026-11-17
 
 ### Fixed

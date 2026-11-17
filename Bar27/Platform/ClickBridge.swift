@@ -1,7 +1,8 @@
 //  Relais des clics vers les items système pendant une assertion (macOS 27).
 //  Logique adaptée de HIDEventManager (Ice PR #995, GPLv3) : MenuBarAgent ignore les clics
-//  sur horloge/batterie/Wi‑Fi tant que l'assertion tient. Le tap retient le clic, l'app lève
-//  l'assertion, rejoue le clic, puis remasque.
+//  sur horloge/batterie/Wi‑Fi tant que l'assertion tient. Le tap retient le clic ; l'app
+//  presse l'item par Accessibility (sans rien lever) ou, pour l'horloge, lève l'assertion,
+//  rejoue le clic sur l'item retrouvé par identifiant, puis remasque (`ClickBridgeRule`).
 //
 //  Le tap tourne sur son propre fil : sur le fil principal, chaque clic du système attendrait
 //  l'app, macOS désactiverait le tap pour lenteur, et un appui retenu deviendrait un glisser.
@@ -14,7 +15,7 @@ import os
 final class ClickBridge: @unchecked Sendable {
     struct Shared {
         var assertionActive = false
-        var systemFrames: [CGRect] = []
+        var systemItems: [SystemItem] = []
         var heldPressNumber: Int64?
         var heldUntil: ContinuousClock.Instant?
     }
@@ -24,13 +25,13 @@ final class ClickBridge: @unchecked Sendable {
     private static let logger = Logger(category: "ClickBridge")
 
     let state = OSAllocatedUnfairLock(initialState: Shared())
-    /// Clic retenu, rang de l'item système visé et son cadre au moment du clic.
-    private let onBridge: @Sendable (CGPoint, Int, CGRect) -> Void
+    /// Clic retenu et item système visé (identifiant + cadre au moment du clic).
+    private let onBridge: @Sendable (CGPoint, SystemItem) -> Void
     private var tap: CFMachPort?
     private var thread: Thread?
     private var runLoop: CFRunLoop?
 
-    init(onBridge: @escaping @Sendable (CGPoint, Int, CGRect) -> Void) {
+    init(onBridge: @escaping @Sendable (CGPoint, SystemItem) -> Void) {
         self.onBridge = onBridge
     }
 
@@ -97,14 +98,14 @@ final class ClickBridge: @unchecked Sendable {
         }
 
         let location = event.location
-        let target = state.withLock { s -> (Int, CGRect)? in
-            guard s.assertionActive, let index = ClickBridgeRule.targetIndex(click: location, systemItemFrames: s.systemFrames) else { return nil }
+        let target = state.withLock { s -> SystemItem? in
+            guard s.assertionActive, let item = ClickBridgeRule.target(click: location, systemItems: s.systemItems) else { return nil }
             s.heldPressNumber = number
             s.heldUntil = .now + .seconds(1)
-            return (index, s.systemFrames[index])
+            return item
         }
         guard let target else { return Unmanaged.passUnretained(event) }
-        onBridge(location, target.0, target.1)
+        onBridge(location, target)
         return nil
     }
 
