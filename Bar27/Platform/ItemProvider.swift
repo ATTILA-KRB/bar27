@@ -47,9 +47,17 @@ enum ItemProvider {
     }
 
     /// Cadres des items système (un seul process, ~quelques ms). Sert au relais de clics.
+    /// Non filtré : l'indice est le rang de l'item dans MenuBarAgent et sert à le retrouver
+    /// après la levée (`ClickBridgeRule.replayPoint`) ; les cadres vides sont ignorés par la règle.
     static func systemItemFrames() -> [CGRect] {
         guard let agent = NSRunningApplication.runningApplications(withBundleIdentifier: menuBarAgentBundleID).first else { return [] }
-        return items(of: agent)?.map(\.frame).filter { $0.width > 0 } ?? []
+        // Cadres seuls (pas de titre) : appelé pendant la levée d'un clic relayé, chaque ms compte.
+        let element = AXUIElementCreateApplication(agent.processIdentifier)
+        AXUIElementSetMessagingTimeout(element, messagingTimeout)
+        guard let bar: AXUIElement = attribute(element, "AXExtrasMenuBar"),
+              let children: [AXUIElement] = attribute(bar, kAXChildrenAttribute)
+        else { return [] }
+        return children.map { frame(of: $0) ?? .zero }
     }
 
     private final class Collector: @unchecked Sendable {

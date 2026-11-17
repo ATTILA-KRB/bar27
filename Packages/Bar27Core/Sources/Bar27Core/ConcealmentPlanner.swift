@@ -37,8 +37,26 @@ public enum ConcealmentPlanner {
 /// ignore alors les clics sur horloge, batterie, Wi‑Fi) et si le clic tombe sur l'un d'eux.
 public enum ClickBridgeRule {
     public static func shouldBridge(click: CGPoint, systemItemFrames: [CGRect], assertionActive: Bool) -> Bool {
-        guard assertionActive else { return false }
-        return systemItemFrames.contains { $0.insetBy(dx: -1, dy: -1).contains(click) }
+        assertionActive && targetIndex(click: click, systemItemFrames: systemItemFrames) != nil
+    }
+
+    /// Rang (dans MenuBarAgent) de l'item système sous le clic. Les cadres vides (item sans
+    /// position AX) sont ignorés : `.zero` élargi contiendrait le coin de l'écran.
+    public static func targetIndex(click: CGPoint, systemItemFrames: [CGRect]) -> Int? {
+        systemItemFrames.firstIndex { !$0.isEmpty && $0.insetBy(dx: -1, dy: -1).contains(click) }
+    }
+
+    /// Point de rejeu après la levée. Lever l'assertion réaffiche ce qu'elle masquait (Spotlight,
+    /// apps) et décale les items système : rejouer aux coordonnées d'origine tomberait sur le
+    /// voisin (clic Wi‑Fi → batterie, mesuré le 17/11/2026 : −32 pt). On garde la position
+    /// relative du clic dans le nouveau cadre de l'item visé.
+    public static func replayPoint(click: CGPoint, from old: CGRect, to new: CGRect) -> CGPoint {
+        guard !new.isEmpty, old != new else { return click }
+        func ratio(_ v: CGFloat, _ min: CGFloat, _ length: CGFloat) -> CGFloat {
+            length > 0 ? Swift.min(Swift.max((v - min) / length, 0.1), 0.9) : 0.5
+        }
+        return CGPoint(x: new.minX + ratio(click.x, old.minX, old.width) * new.width,
+                       y: new.minY + ratio(click.y, old.minY, old.height) * new.height)
     }
 }
 

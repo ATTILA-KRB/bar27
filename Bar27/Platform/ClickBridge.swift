@@ -24,12 +24,13 @@ final class ClickBridge: @unchecked Sendable {
     private static let logger = Logger(category: "ClickBridge")
 
     let state = OSAllocatedUnfairLock(initialState: Shared())
-    private let onBridge: @Sendable (CGPoint) -> Void
+    /// Clic retenu, rang de l'item système visé et son cadre au moment du clic.
+    private let onBridge: @Sendable (CGPoint, Int, CGRect) -> Void
     private var tap: CFMachPort?
     private var thread: Thread?
     private var runLoop: CFRunLoop?
 
-    init(onBridge: @escaping @Sendable (CGPoint) -> Void) {
+    init(onBridge: @escaping @Sendable (CGPoint, Int, CGRect) -> Void) {
         self.onBridge = onBridge
     }
 
@@ -96,14 +97,14 @@ final class ClickBridge: @unchecked Sendable {
         }
 
         let location = event.location
-        let bridge = state.withLock { s -> Bool in
-            guard ClickBridgeRule.shouldBridge(click: location, systemItemFrames: s.systemFrames, assertionActive: s.assertionActive) else { return false }
+        let target = state.withLock { s -> (Int, CGRect)? in
+            guard s.assertionActive, let index = ClickBridgeRule.targetIndex(click: location, systemItemFrames: s.systemFrames) else { return nil }
             s.heldPressNumber = number
             s.heldUntil = .now + .seconds(1)
-            return true
+            return (index, s.systemFrames[index])
         }
-        guard bridge else { return Unmanaged.passUnretained(event) }
-        onBridge(location)
+        guard let target else { return Unmanaged.passUnretained(event) }
+        onBridge(location, target.0, target.1)
         return nil
     }
 

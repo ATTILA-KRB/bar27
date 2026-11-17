@@ -61,6 +61,25 @@ private let layout = Layout(sections: ["b.hid": .hidden, "c.always": .alwaysHidd
     #expect(!ClickBridgeRule.shouldBridge(click: CGPoint(x: 1400, y: 10), systemItemFrames: [clock], assertionActive: false))
     #expect(!ClickBridgeRule.shouldBridge(click: CGPoint(x: 500, y: 10), systemItemFrames: [clock], assertionActive: true))
     #expect(!ClickBridgeRule.shouldBridge(click: CGPoint(x: 1400, y: 300), systemItemFrames: [clock], assertionActive: true))
+    #expect(!ClickBridgeRule.shouldBridge(click: CGPoint(x: 0, y: 0), systemItemFrames: [.zero], assertionActive: true), "item sans cadre AX")
+}
+
+/// Relevé réel (17/11/2026) : Spotlight masqué par l'assertion ; à la levée il réapparaît et
+/// Wi‑Fi (1252 → 1220) et batterie (1290 → 1258) glissent de 32 pt vers la gauche.
+@Test func replaysOnTheSameItemAfterTheBarShifts() {
+    let wifi = CGRect(x: 1252, y: 0, width: 22, height: 33), battery = CGRect(x: 1290, y: 0, width: 26, height: 33)
+    let frames = [CGRect.zero, wifi, battery]
+    let click = CGPoint(x: 1263, y: 12)
+    let index = ClickBridgeRule.targetIndex(click: click, systemItemFrames: frames)
+    #expect(index == 1)
+    let wifiAfter = wifi.offsetBy(dx: -32, dy: 0), batteryAfter = battery.offsetBy(dx: -32, dy: 0)
+    #expect(batteryAfter.contains(click), "rejouer aux coordonnées d'origine ouvrirait la batterie")
+    let replay = ClickBridgeRule.replayPoint(click: click, from: wifi, to: wifiAfter)
+    #expect(wifiAfter.contains(replay) && !batteryAfter.contains(replay))
+    #expect(ClickBridgeRule.replayPoint(click: click, from: wifi, to: wifi) == click, "barre immobile : clic inchangé")
+    #expect(ClickBridgeRule.replayPoint(click: click, from: wifi, to: .zero) == click, "cadre perdu : clic inchangé")
+    let edge = ClickBridgeRule.replayPoint(click: CGPoint(x: 1251.5, y: 12), from: wifi, to: wifiAfter)
+    #expect(wifiAfter.contains(edge), "clic dans la marge de 1 pt : ramené dans l'item")
 }
 
 @Test func autoRehideWaitsForMenusAndPointer() {

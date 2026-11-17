@@ -77,8 +77,8 @@ final class ConcealmentController {
         guard let self, self.state == .collapsed else { return }
         self.set(.revealed)
     }
-    @ObservationIgnored private(set) lazy var clickBridge = ClickBridge { [weak self] location in
-        Task { @MainActor in await self?.bridgeClick(at: location) }
+    @ObservationIgnored private(set) lazy var clickBridge = ClickBridge { [weak self] location, index, frame in
+        Task { @MainActor in await self?.bridgeClick(at: location, item: index, frame: frame) }
     }
 
     private enum Keys {
@@ -236,6 +236,9 @@ final class ConcealmentController {
         case .assessment:
             await applyFullAssertion(running: running)
         }
+        // Les items système bougent quand des apps (dis)paraissent, y compris par l'interrupteur
+        // natif sans changement d'assertion : cadres périmés = clics relayés à tort ou perdus.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in self?.refreshSystemFrames() }
     }
 
     private static func isConcealed(_ section: Section, in state: RevealState) -> Bool {
@@ -278,8 +281,6 @@ final class ConcealmentController {
         if let previous { AssessmentBackend.invalidate(previous) }
         let active = token != nil
         clickBridge.state.withLock { $0.assertionActive = active }
-        // Les items système bougent quand des apps disparaissent.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in self?.refreshSystemFrames() }
         return true
     }
 
@@ -333,7 +334,7 @@ final class ConcealmentController {
         return .milliseconds(stored > 0 ? min(max(stored, 30), 2000) : 120)
     }
 
-    private func bridgeClick(at location: CGPoint) async {
+    private func bridgeClick(at location: CGPoint, item index: Int, frame: CGRect) async {
         guard let current = token, !bridging else {
             ClickBridge.replayClick(at: location)
             return
@@ -343,14 +344,32 @@ final class ConcealmentController {
         AssessmentBackend.invalidate(current)
         token = nil
         clickBridge.state.withLock { $0.assertionActive = false }
-        // MenuBarAgent ignore un clic qui arrive avant la levée effective.
-        try? await Task.sleep(for: .milliseconds(30))
-        ClickBridge.replayClick(at: location)
+        // MenuBarAgent ignore un clic qui arrive avant la levée effective (≥ 30 ms) ; la levée
+        // réaffiche ce que l'assertion masquait et décale les items système (AX à jour ~25 ms
+        // après, mesuré) : on rejoue sur le nouveau cadre de l'item visé, pas aux coordonnées
+        // d'origine, sinon le clic Wi‑Fi ouvre la batterie.
+        let target = await Self.relocatedClick(location, item: index, frame: frame)
+        ClickBridge.replayClick(at: target)
         try? await Task.sleep(for: Self.liftDuration)
         bridging = false
         bridgedClicks += 1
-        logger.info("Clic relayé, levée \(String(describing: start.duration(to: .now)), privacy: .public)")
+        let shift = Int(target.x - location.x)
+        logger.info("Clic relayé (item \(index), décalage \(shift) pt), levée \(String(describing: start.duration(to: .now)), privacy: .public)")
         apply()
+    }
+
+    /// Relit le cadre de l'item visé après la levée (seconde lecture si rien n'a encore bougé :
+    /// un item immobile, comme Control Center, ne paie que ~15 ms), puis transpose le clic dedans.
+    private static func relocatedClick(_ location: CGPoint, item index: Int, frame: CGRect) async -> CGPoint {
+        try? await Task.sleep(for: .milliseconds(30))
+        var current = frame
+        for attempt in 0..<2 {
+            let frames = await Task.detached { ItemProvider.systemItemFrames() }.value
+            if frames.indices.contains(index) { current = frames[index] }
+            if current != frame || attempt == 1 { break }
+            try? await Task.sleep(for: .milliseconds(15))
+        }
+        return ClickBridgeRule.replayPoint(click: location, from: frame, to: current)
     }
 
     // MARK: Re-masquage automatique
