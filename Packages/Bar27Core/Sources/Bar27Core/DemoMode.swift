@@ -13,18 +13,26 @@ public enum DemoMode {
     }
 
     public static func isEnabled(arguments: [String], environment: [String: String]) -> Bool {
-        arguments.contains("-demo") || environment["BAR27_DEMO"] == "1"
+        arguments.contains("-demo") || environment["BAR27_DEMO"] == "1" || isSnapshot(environment: environment)
     }
 
+    /// Mode capture (`BAR27_SNAPSHOT=1`, implique la démo) : retire les marqueurs de démo et simule
+    /// l'interrupteur natif pour les captures publiques. Inactif sans cette variable.
+    public static func isSnapshot(environment: [String: String]) -> Bool {
+        environment["BAR27_SNAPSHOT"] == "1"
+    }
+
+    public static let snapshot = isSnapshot(environment: ProcessInfo.processInfo.environment)
+
     public static let apps: [App] = [
-        App(bundleID: "demo.bar27.clock", name: "Horloge", symbol: "clock", section: .visible, itemCount: 1),
-        App(bundleID: "demo.bar27.wifi", name: "Wi‑Fi", symbol: "wifi", section: .visible, itemCount: 1),
-        App(bundleID: "demo.bar27.battery", name: "Batterie", symbol: "battery.100", section: .visible, itemCount: 1),
-        App(bundleID: "demo.bar27.spotlight", name: "Spotlight", symbol: "magnifyingglass", section: .visible, itemCount: 1),
-        App(bundleID: "demo.bar27.calendar", name: "Calendrier", symbol: "calendar", section: .hidden, itemCount: 1),
-        App(bundleID: "demo.bar27.music", name: "Musique", symbol: "music.note", section: .hidden, itemCount: 2),
-        App(bundleID: "demo.bar27.notes", name: "Notes", symbol: "note.text", section: .alwaysHidden, itemCount: 1),
-        App(bundleID: "demo.bar27.weather", name: "Météo", symbol: "cloud.sun", section: .alwaysHidden, itemCount: 1),
+        App(bundleID: "com.apple.clock", name: "Horloge", symbol: "clock", section: .visible, itemCount: 1),
+        App(bundleID: "com.apple.menuextra.wifi", name: "Wi‑Fi", symbol: "wifi", section: .visible, itemCount: 1),
+        App(bundleID: "com.apple.menuextra.battery", name: "Batterie", symbol: "battery.100", section: .visible, itemCount: 1),
+        App(bundleID: "com.apple.Spotlight", name: "Spotlight", symbol: "magnifyingglass", section: .visible, itemCount: 1),
+        App(bundleID: "com.apple.iCal", name: "Calendrier", symbol: "calendar", section: .hidden, itemCount: 1),
+        App(bundleID: "com.apple.Music", name: "Musique", symbol: "music.note", section: .hidden, itemCount: 2),
+        App(bundleID: "com.apple.Notes", name: "Notes", symbol: "note.text", section: .alwaysHidden, itemCount: 1),
+        App(bundleID: "com.apple.weather", name: "Météo", symbol: "cloud.sun", section: .alwaysHidden, itemCount: 1),
     ]
 
     public static var layout: Layout {
