@@ -36,7 +36,7 @@ import Testing
     #expect(DemoMode.isEnabled(arguments: ["Bar27", "-demo"], environment: [:]))
     #expect(DemoMode.isEnabled(arguments: [], environment: ["BAR27_DEMO": "1"]))
     // Aucune vraie app : tous les identifiants sont fictifs, chacun a une icône SF Symbols.
-    #expect(DemoMode.apps.allSatisfy { $0.bundleID.hasPrefix("demo.bar27.") && DemoMode.symbol(for: $0.bundleID) != nil })
+    #expect(DemoMode.apps.allSatisfy { $0.bundleID.hasPrefix("com.apple.") && DemoMode.symbol(for: $0.bundleID) != nil })
     let rows = LayoutRows.make(
         scanned: DemoMode.items.map { ($0.bundleID, $0.appName) }, layout: DemoMode.layout,
         running: Set(DemoMode.apps.map(\.bundleID)), selfBundleID: "self", displayName: { _ in nil }

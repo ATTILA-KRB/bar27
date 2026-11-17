@@ -163,7 +163,7 @@ struct LayoutView: View {
                 Text("Interrupteur natif (accès complet au disque)").tag(HidingBackend?.some(.native))
                 Text("Méthode de secours").tag(HidingBackend?.some(.assessment))
             }
-            if controller.backend == .native {
+            if controller.backend == .native || DemoMode.snapshot {
                 Toggle(isOn: $controller.concealSystemItems) {
                     Text("Masquer aussi Spotlight et les éléments système")
                     Text("Hors de portée de l'interrupteur natif : méthode de secours pour eux seuls ; les clics sur l'horloge, le Wi‑Fi et la batterie sont alors relayés.")
@@ -195,12 +195,14 @@ struct LayoutView: View {
     private var diagnostics: some View {
         HStack(alignment: .firstTextBaseline) {
             VStack(alignment: .leading, spacing: 2) {
-                if controller.isDemo {
+                if controller.isDemo, DemoMode.snapshot {
+                    Text("\(DemoMode.items.count) icônes")
+                } else if controller.isDemo {
                     Text("\(String(localized: "\(DemoMode.items.count) icônes")) · mode démo (données fictives)")
                 } else if let scan = controller.lastScan {
                     Text(verbatim: scanSummary(scan))
                 }
-                Text("Méthode : \(controller.backend == .native ? String(localized: "interrupteur natif") : String(localized: "méthode de secours (clics système relayés : \(controller.bridgedClicks))"))")
+                Text("Méthode : \(controller.backend == .native || DemoMode.snapshot ? String(localized: "interrupteur natif") : String(localized: "méthode de secours (clics système relayés : \(controller.bridgedClicks))"))")
                 Text("Masquées : \(concealedIDs.isEmpty ? String(localized: "aucune") : concealedIDs.map(AppInfo.displayName(for:)).joined(separator: ", "))")
                 if !controller.unconcealable.isEmpty {
                     Text("Restent visibles (hors de portée de l'interrupteur natif) : \(controller.unconcealable.map(AppInfo.displayName(for:)).joined(separator: ", "))")
