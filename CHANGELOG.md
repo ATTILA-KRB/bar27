@@ -4,6 +4,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-17
+
+### Fixed
+- With "Also hide Spotlight" on, clicking Wi‑Fi opened the battery menu and clicking the battery opened Spotlight. Lifting the hiding briefly brings Spotlight back and shifts the system icons; the relayed click is now replayed on the icon you clicked, at its new position.
+- System icon positions are refreshed after every hide/reveal, including native hiding, so clicks are no longer relayed (or dropped) based on stale positions.
+
 ## [0.2.0] - 2026-11-16
 
 ### Added
