@@ -4,6 +4,9 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- "Open Settings" for Full Disk Access now shows a small guide next to the System Settings window, with the Bar27 icon to drag into the list. It follows the window and closes on its own once access is granted.
+
 ### Fixed
 - Clicking a system icon (battery, Wi‑Fi, sound, Control Center) while Spotlight is hidden no longer makes the whole menu bar slide and come back, and no longer opens the wrong menu when a "Now Playing" item is around. Bar27 now presses the icon through Accessibility without lifting the hiding. The clock still needs a brief lift; its click is replayed once the bar has settled, on the clock itself.
 
