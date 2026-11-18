@@ -79,7 +79,7 @@ struct LayoutView: View {
                     permissionRow(
                         title: "Accès complet au disque (recommandé)",
                         detail: "Pour masquer via l'interrupteur natif de macOS : l'icône de Bar27 et les clics sur l'horloge, le Wi‑Fi, la batterie restent normaux. Sans lui, méthode de secours. Ajoutez Bar27 dans la liste (« + » ou glisser-déposer) ; Bar27 bascule tout seul.",
-                        action: ("Ouvrir Réglages", { Permissions.openSettings(.fullDiskAccess); Permissions.revealAppInFinder() })
+                        action: ("Ouvrir Réglages", { PermissionGuide.shared.show(.fullDiskAccess) { Permissions.fullDiskAccess } })
                     )
                 }
             }

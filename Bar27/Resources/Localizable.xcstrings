@@ -1,6 +1,74 @@
 {
   "sourceLanguage": "fr",
   "strings": {
+    "Fermer": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fermer"
+          }
+        }
+      }
+    },
+    "Accès accordé": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Access granted"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accès accordé"
+          }
+        }
+      }
+    },
+    "Glissez Bar27 dans la liste": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag Bar27 into the list"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glissez Bar27 dans la liste"
+          }
+        }
+      }
+    },
+    "Ou cliquez sur « + » sous la liste et choisissez Bar27. Validez si macOS le demande ; Bar27 bascule tout seul.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Or click “+” below the list and choose Bar27. Confirm if macOS asks; Bar27 switches over on its own."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ou cliquez sur « + » sous la liste et choisissez Bar27. Validez si macOS le demande ; Bar27 bascule tout seul."
+          }
+        }
+      }
+    },
     " · lentes : %@": {
       "extractionState": "manual",
       "localizations": {

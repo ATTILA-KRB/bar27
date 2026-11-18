@@ -4,6 +4,7 @@ import Bar27Core
 /// Commandes sans interface pour la vérification automatisée (scripts/verify.sh).
 ///   --dump-items                     inventaire JSON des items puis sortie
 ///   --conceal <bundleID> <secondes>  masque une app via l'assertion puis relâche et sort
+///   --permission-guide <secondes>    assistant d'accès complet au disque, accord simulé après <secondes>
 @MainActor
 enum HeadlessCommands {
     static func run(arguments: [String], selfBundleID: String) -> Bool {
@@ -77,6 +78,19 @@ enum HeadlessCommands {
                 } catch {
                     print("ERREUR \(error)"); exit(4)
                 }
+            }
+            return true
+        }
+        // --permission-guide <secondes> : affiche l'assistant d'accès complet au disque, simule l'accord
+        // après <secondes> (l'accès réel est peut-être déjà accordé) puis sort.
+        if let i = arguments.firstIndex(of: "--permission-guide"), arguments.count > i + 1, let seconds = Double(arguments[i + 1]) {
+            let grantedAt = Date().addingTimeInterval(seconds)
+            PermissionGuide.shared.show(.fullDiskAccess) { Date() > grantedAt }
+            print("GUIDE affiché"); fflush(stdout)
+            Task {
+                try? await Task.sleep(for: .seconds(seconds + 2.5))
+                print("GUIDE terminé"); fflush(stdout)
+                exit(0)
             }
             return true
         }

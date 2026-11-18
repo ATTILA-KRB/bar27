@@ -105,4 +105,5 @@ Vérification continue : tests unitaires du Planner (sans barre) + scripts d'int
 ## État phase 2 (2026-11-04)
 - Fait : deux backends (natif prioritaire, assertion en repli), relais de clics système, raccourci ⌃⌥⌘B, re-masquage auto, ouverture à la connexion, réglages dans « Organiser la barre ».
 - Validé : backend natif (scripts/verify-native.sh), icône Bar27 présente en natif, rallumage sur SIGTERM et au relancement après plantage.
-- Reste : onboarding « Accès complet au disque » dans l'app (détection et lien vers Réglages) ; moyen de révélation sans raccourci sous assertion ; phase 3 (UI d'organisation).
+- Fait (2026-11-18) : assistant « Accès complet au disque » (`PermissionGuide`, voir SPIKES.md).
+- Reste : moyen de révélation sans raccourci sous assertion ; phase 3 (UI d'organisation).

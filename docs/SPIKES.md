@@ -77,3 +77,13 @@ Les clics sur l'horloge, la batterie ou le Wi‑Fi sont ignorés tant que l'asse
   - AXPress : 16/16 (son, Wi‑Fi, batterie, Control Center), et la barre reste immobile pendant le clic sur la batterie.
   - Horloge : 12/12. La sonde `nctrace` suit le Centre de notifications ; `which` se trompe quand un panneau reste ouvert d'un essai à l'autre.
 - **Les assertions ne se cumulent pas** : la dernière posée l'emporte. Un `--conceal` lancé pendant que Bar27 tourne réaffiche Spotlight.
+
+## Assistant « Accès complet au disque » (2026-11-18)
+
+- **Constat** : l'accès complet au disque n'a ni API de requête ni invite ; il faut ajouter l'app dans la liste (« + » ou glisser-déposer). Sur macOS 27.0.1, `x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles` et `…com.apple.settings.PrivacySecurity.extension?Privacy_AllFiles` ouvrent tous deux le volet ; la fenêtre Réglages se lit par AX (`AXMainWindow`, position et taille ; titre « Accès complet au disque »).
+- **Assistant** (`PermissionGuide`) : `NSPanel` non activant, niveau flottant, calé à gauche de la fenêtre Réglages (sinon à droite, sinon en bas à l'intérieur ; `GuidePlacement`, testé), avec l'icône de Bar27 à glisser (URL du bundle, comme un glisser depuis le Finder). Il suit la fenêtre toutes les 0,25 s, se cache quand une autre app passe au premier plan, se ferme si Réglages se ferme, et affiche « Accès accordé » 1,5 s avant de se fermer. Sans Accessibilité ou sans fenêtre Réglages au bout de 5 s : repli sur le Finder (ancien comportement).
+- **Invariants** :
+  1. Le cadre AX (origine haut-gauche) se convertit avec la hauteur de l'écran **principal** (`GuidePlacement.cocoaRect`).
+  2. Réglages peut s'ouvrir sur un autre espace : pendant l'animation, les fenêtres ont un x négatif (CGWindowList) ; le panneau est réaffiché sur l'espace actif (`isOnActiveSpace`), jamais placé d'après une capture unique.
+  3. L'icône vient de `NSApp.applicationIconImage` (copie à 64 pt) : `NSWorkspace.icon(forFile:)` renvoie l'icône générique pour un build frais, et une `NSImageView` sans taille intrinsèque fixée déborde de son cadre SwiftUI.
+- **Vérifié** (`--permission-guide <s>`, accord simulé) : panneau à x 243→503 contre Réglages à x 515, centré verticalement, flèche vers la liste, texte non coupé (capture + vision) ; fermeture après l'accord ; caché quand Dia est au premier plan. **Non vérifié** : le dépôt réel dans la liste (Bar27 y figure déjà sur ce Mac).
